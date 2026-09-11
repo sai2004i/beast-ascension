@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <title>Beast Ascension — Elite Physical Conditioning & Protocol</title>
+    <meta name="description" content="Anime-inspired four-beast biomechanical progression engine. Forge raw power, explosive fists, and athletic speed.">
+    <meta name="theme-color" content="#030304">
+    <meta name="color-scheme" content="dark">
+    
+    <!-- PWA & Apple Web App Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Beast Ascension">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- High-Performance Typography Preconnects -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app">
+        <!-- =========================================
+             MOBILE HUD HEADER
+        ========================================= -->
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-beast">BEAST</span>
+                <span class="logo-ascension">ASCENSION</span>
+            </div>
+            
+            <div class="level-container">
+                <span class="level-label">TIER</span>
+                <span class="level-number" id="levelNumber">1</span>
+            </div>
+        </header>
+
+        <!-- =========================================
+             PAGE 1: BASE / HOME
+        ========================================= -->
+        <main class="page active-page" id="homePage">
+            <!-- HERO HUD -->
+            <section class="hero">
+                <div class="hero-content">
+                    <div class="hero-tag">⚔ FOUR BEAST PROTOCOL</div>
+                    <h1 class="hero-title">BEAST<br><span>ASCENSION</span></h1>
+                    <p class="hero-description">
+                        Build the skeletal density of Gyomei, the kinetic drive of Akaza, 
+                        the speed of Toji, and the combat power of Baki.
+                    </p>
+                    
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="hero-stat-value">6</span>
+                            <span class="hero-stat-label">SPLIT DAYS</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-value">4</span>
+                            <span class="hero-stat-label">BEASTS</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-value">90</span>
+                            <span class="hero-stat-label">MIN MAX</span>
+                        </div>
+                    </div>
+                    
+                    <button class="hero-button" type="button" onclick="scrollToWorkout()">INITIATE ASCENSION</button>
+                </div>
+            </section>
+
+            <!-- TRAINING ENVIRONMENT SELECTOR -->
+            <section class="training-section" id="trainingSection">
+                <div class="section-header">
+                    <div>
+                        <span class="section-subtitle">ENVIRONMENT PROTOCOL</span>
+                        <h2 class="section-title">TRAINING MODE</h2>
+                    </div>
+                </div>
+                
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="gymModeBtn" type="button" onclick="setTrainingMode('gym')">
+                        <span class="mode-icon">🏋️</span>
+                        <div>
+                            <span class="mode-title">GYM MATRIX</span>
+                            <span class="mode-description">Barbells, cables & heavy iron</span>
+                        </div>
+                    </button>
+                    
+                    <button class="mode-btn" id="homeModeBtn" type="button" onclick="setTrainingMode('home')">
+                        <span class="mode-icon">🏠</span>
+                        <div>
+                            <span class="mode-title">FIELD PROTOCOL</span>
+                            <span class="mode-description">Bodyweight & pack workouts</span>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- WORKOUT GRID -->
+            <section class="workouts-section" id="workoutSection">
+                <div class="section-header">
+                    <div>
+                        <span class="section-subtitle">WEEKLY SYSTEM</span>
+                        <h2 class="section-title">BEAST SESSIONS</h2>
+                    </div>
+                    <div class="section-badge">6 PROTOCOLS</div>
+                </div>
+
+                <div class="workout-grid">
+                    <!-- DAY 1: GYOMEI -->
+                    <article class="workout-card gyomei" data-workout="gyomei">
+                        <div class="card-top">
+                            <span class="day-badge">DAY 1</span>
+                            <span class="owner owner-gyomei">🗿 GYOMEI</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="workout-category">MAX MASS + SKELETAL POWER</span>
+                            <h3 class="workout-name">TITAN<br>STRENGTH</h3>
+                            <p class="workout-description">Dense compound barbell movements for unstoppable spinal, quad, and back thickness.</p>
+                            <div class="workout-tags"><span>STRENGTH</span><span>HYPERTROPHY</span><span>DENSITY</span></div>
+                        </div>
+                        <button class="start-button" type="button" onclick="startWorkout('gyomei')">DEPLOY WORKOUT <span>⚡</span></button>
+                    </article>
+
+                    <!-- DAY 2: AKAZA -->
+                    <article class="workout-card akaza" data-workout="akaza">
+                        <div class="card-top">
+                            <span class="day-badge">DAY 2</span>
+                            <span class="owner owner-akaza">👊 AKAZA</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="workout-category">KINETIC DRIVE + HAND VELOCITY</span>
+                            <h3 class="workout-name">DEMON<br>FISTS</h3>
+                            <p class="workout-description">Explosive upper pressing mechanics, shoulder deltoid capping, and rapid boxing combinations.</p>
+                            <div class="workout-tags"><span>HAND SPEED</span><span>DRIVE</span><span>EXPLOSIVE</span></div>
+                        </div>
+                        <button class="start-button" type="button" onclick="startWorkout('akaza')">DEPLOY WORKOUT <span>👊</span></button>
+                    </article>
+
+                    <!-- DAY 3: TOJI -->
+                    <article class="workout-card toji" data-workout="toji">
+                        <div class="card-top">
+                            <span class="day-badge">DAY 3</span>
+                            <span class="owner owner-toji">⚡ TOJI</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="workout-category">FAST-TWITCH + ATHLETICISM</span>
+                            <h3 class="workout-name">HEAVENLY<br>SPEED</h3>
+                            <p class="workout-description">Maximum velocity sprints, elastic tendon plyometrics, and functional torso deceleration.</p>
+                            <div class="workout-tags"><span>ACCELERATION</span><span>AGILITY</span><span>REFLEX</span></div>
+                        </div>
+                        <button class="start-button" type="button" onclick="startWorkout('toji')">DEPLOY WORKOUT <span>⚡</span></button>
+                    </article>
+
+                    <!-- DAY 4: BAKI -->
+                    <article class="workout-card baki" data-workout="baki">
+                        <div class="card-top">
+                            <span class="day-badge">DAY 4</span>
+                            <span class="owner owner-baki">🐉 BAKI</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="workout-category">RAW BRUTALITY + CRUSH GRIP</span>
+                            <h3 class="workout-name">MONSTER<br>POWER</h3>
+                            <p class="workout-description">Violent posterior chain pull strength, forearm tendon endurance, and combat conditioning.</p>
+                            <div class="workout-tags"><span>CRUSH GRIP</span><span>DEADLIFT</span><span>SAVAGERY</span></div>
+                        </div>
+                        <button class="start-button" type="button" onclick="startWorkout('baki')">DEPLOY WORKOUT <span>🐉</span></button>
+                    </article>
+
+                    <!-- DAY 5: FUSION -->
+                    <article class="workout-card fusion" data-workout="fusion">
+                        <div class="card-top">
+                            <span class="day-badge">DAY 5</span>
+                            <span class="owner owner-fusion">🗿⚡ FUSION</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="workout-category">POWERBUILDING HYBRID</span>
+                            <h3 class="workout-name">BEAST<br>ATHLETE</h3>
+                            <p class="workout-description">Synergy of pure high-load squats, presses, and athletic explosive jumps.</p>
+                            <div class="workout-tags"><span>STRENGTH</span><span>VELOCITY</span><span>FUNCTIONAL</span></div>
+                        </div>
+                        <button class="start-button" type="button" onclick="startWorkout('fusion')">DEPLOY WORKOUT <span>🔥</span></button>
+                    </article>
+
+                    <!-- DAY 6: HYBRID -->
+                    <article class="workout-card hybrid" data-workout="hybrid">
+                        <div class="card-top">
+                            <span class="day-badge">DAY 6</span>
+                            <span class="owner owner-hybrid">⚔️ ALL 4 BEASTS</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="workout-category">PEAK ASCENSION CRUCIBLE</span>
+                            <h3 class="workout-name">HYBRID<br>BEAST</h3>
+                            <p class="workout-description">The ultimate trial challenging muscular load, sprint output, and mental grit.</p>
+                            <div class="workout-tags"><span>FULL SPECTRUM</span><span>RESILIENCE</span><span>APEX</span></div>
+                        </div>
+                        <button class="start-button" type="button" onclick="startWorkout('hybrid')">DEPLOY CRUCIBLE <span>⚔️</span></button>
+                    </article>
+                </div>
+            </section>
+
+            <!-- REST PROTOCOL -->
+            <section class="rest-section">
+                <div class="rest-icon">🛌</div>
+                <div class="rest-card">
+                    <span class="section-subtitle">CYCLE 07</span>
+                    <h2>BEAST RECOVERY</h2>
+                    <p>Replenish systemic glycogen stores, enforce 8+ hours sleep architecture, and hydrate.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- =========================================
+             PAGE 2: PROGRESS & ANALYTICS
+        ========================================= -->
+        <section class="page" id="progressPage">
+            <div class="page-heading">
+                <span class="section-subtitle">BIOMETRIC EVOLUTION</span>
+                <h1>ASCENSION TELEMETRY</h1>
+            </div>
+
+            <!-- ACHIEVEMENTS -->
+            <section class="achievements-section">
+                <div class="achievement-heading">
+                    <span class="section-subtitle">MILESTONE BADGES</span>
+                    <h2>🏆 BEAST ACHIEVEMENTS</h2>
+                    <p id="achievementSummary">0 / 5 ACHIEVEMENTS UNLOCKED</p>
+                </div>
+                <div id="achievementGrid" class="achievement-grid"></div>
+            </section>
+
+            <!-- STATS MATRIX -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="workoutsCompleted">0</span>
+                    <span class="stat-label">SESSIONS</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="currentStreak">0</span>
+                    <span class="stat-label">DAY STREAK</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="progressLevel">1</span>
+                    <span class="stat-label">TIER</span>
+                </div>
+            </div>
+
+            <!-- LEVEL PROGRESS -->
+            <section class="level-progress-card">
+                <div class="level-progress-head">
+                    <div>
+                        <span class="section-subtitle">CURRENT CLASSIFICATION</span>
+                        <h2 id="levelTitle">NOVICE BEAST</h2>
+                    </div>
+                    <span id="levelProgressText">0 / 5 TO NEXT LEVEL</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill xp-fill" id="levelProgressBar"></div>
+                </div>
+            </section>
+
+            <!-- BEAST METRIC BARS -->
+            <div class="progress-list">
+                <div class="progress-card">
+                    <div class="progress-card-header"><span>🗿 GYOMEI (STRENGTH)</span><span id="gyomeiProgressText">0%</span></div>
+                    <div class="progress-bar"><div class="progress-fill gyomei-fill" id="gyomeiProgress"></div></div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header"><span>👊 AKAZA (STRIKING)</span><span id="akazaProgressText">0%</span></div>
+                    <div class="progress-bar"><div class="progress-fill akaza-fill" id="akazaProgress"></div></div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header"><span>⚡ TOJI (VELOCITY)</span><span id="tojiProgressText">0%</span></div>
+                    <div class="progress-bar"><div class="progress-fill toji-fill" id="tojiProgress"></div></div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header"><span>🐉 BAKI (BRUTALITY)</span><span id="bakiProgressText">0%</span></div>
+                    <div class="progress-bar"><div class="progress-fill baki-fill" id="bakiProgress"></div></div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header"><span>🔥 FUSION (POWERBUILDING)</span><span id="fusionProgressText">0%</span></div>
+                    <div class="progress-bar"><div class="progress-fill fusion-fill" id="fusionProgress"></div></div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header"><span>⚔️ HYBRID (APEX)</span><span id="hybridProgressText">0%</span></div>
+                    <div class="progress-bar"><div class="progress-fill hybrid-fill" id="hybridProgress"></div></div>
+                </div>
+            </div>
+
+            <!-- CALENDAR -->
+            <section class="calendar-section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-subtitle">CONSISTENCY MATRIX</span>
+                        <h2>CALENDAR</h2>
+                    </div>
+                    <div class="calendar-controls">
+                        <button type="button" class="calendar-nav" onclick="changeCalendarMonth(-1)" aria-label="Previous month">‹</button>
+                        <strong id="calendarMonthLabel">MONTH</strong>
+                        <button type="button" class="calendar-nav" onclick="changeCalendarMonth(1)" aria-label="Next month">›</button>
+                    </div>
+                </div>
+                <div class="calendar-legend">
+                    <span><i class="legend-dot trained"></i> SESSION COMPLETE</span>
+                    <span><i class="legend-dot today"></i> CURRENT DAY</span>
+                </div>
+                <div class="calendar-weekdays"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div>
+                <div id="workoutCalendar" class="workout-calendar"></div>
+                <p id="calendarSummary" class="calendar-summary">0 SESSIONS LOGGED THIS MONTH</p>
+            </section>
+
+            <!-- ANALYTICS DASHBOARD -->
+            <section class="ultimate-dashboard-section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-subtitle">INTELLIGENCE</span>
+                        <h2>TRANSFORMATION DATA</h2>
+                    </div>
+                </div>
+                <div id="ultimateDashboard"></div>
+            </section>
+
+            <!-- HISTORY -->
+            <section class="history-section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-subtitle">LOG ARCHIVE</span>
+                        <h2>RECENT SESSIONS</h2>
+                    </div>
+                </div>
+                <div id="workoutHistory" class="workout-history">
+                    <p class="history-empty">NO SESSIONS LOGGED YET.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- =========================================
+             PAGE 3: ASCENSION ROADMAP
+        ========================================= -->
+        <section class="page" id="ascensionPage">
+            <section class="rank-section">
+                <div class="rank-section-header">
+                    <div>
+                        <span class="section-subtitle">ASCENSION HIERARCHY</span>
+                        <h2>BEAST <span>RANKS</span></h2>
+                        <p>Consistent effort breaks genetic limits.</p>
+                    </div>
+                    <div class="rank-level-badge">
+                        <span>TIER</span>
+                        <strong id="currentLevel">1</strong>
+                    </div>
+                </div>
+
+                <div class="current-rank-card">
+                    <div class="current-rank-top">
+                        <div class="rank-medal"><span id="currentRankIcon">🥉</span></div>
+                        <div class="current-rank-info">
+                            <span class="current-rank-label">CURRENT FORM</span>
+                            <h3 id="currentRankName">NOVICE BEAST</h3>
+                            <p id="currentRankDescription">The beginning of your physical awakening.</p>
+                        </div>
+                    </div>
+                    <div class="current-status"><span class="status-dot"></span> ACTIVE</div>
+
+                    <div class="xp-area">
+                        <div class="xp-text">
+                            <span>TIER EVOLUTION PROGRESS</span>
+                            <strong id="xpText">0 / 5 SESSIONS</strong>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill xp-fill" id="xpFill"></div>
+                        </div>
+                        <div class="xp-footer">
+                            <span id="xpProgressText">Execute 5 sessions to ascend to Tier 2</span>
+                            <span id="xpPercentage">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rank-timeline">
+                    <div class="rank-node active" data-level="1">
+                        <div class="rank-node-icon">🥉</div>
+                        <div class="rank-node-content">
+                            <div class="rank-node-level">TIER 1</div>
+                            <h3>NOVICE BEAST</h3>
+                            <p>Foundation of compound motor patterns.</p>
+                        </div>
+                        <div class="rank-node-status current-rank-status">CURRENT</div>
+                    </div>
+
+                    <div class="rank-node locked" data-level="5">
+                        <div class="rank-node-icon">🔥</div>
+                        <div class="rank-node-content">
+                            <div class="rank-node-level">TIER 5</div>
+                            <h3>DEMON SLAYER INITIATE</h3>
+                            <p>Tendon strength and breathing adaptation established.</p>
+                        </div>
+                        <div class="rank-node-status">🔒 LOCKED</div>
+                    </div>
+
+                    <div class="rank-node locked" data-level="10">
+                        <div class="rank-node-icon">⚡</div>
+                        <div class="rank-node-content">
+                            <div class="rank-node-level">TIER 10</div>
+                            <h3>HASHIRA / HEAVENLY RESTRICTION</h3>
+                            <p>Zero fatigue threshold. Peak sprint and press output.</p>
+                        </div>
+                        <div class="rank-node-status">🔒 LOCKED</div>
+                    </div>
+
+                    <div class="rank-node locked" data-level="25">
+                        <div class="rank-node-icon">👹</div>
+                        <div class="rank-node-content">
+                            <div class="rank-node-level">TIER 25</div>
+                            <h3>OGRE ASCENSION</h3>
+                            <p>Hyper-dense skeletal muscle and crushing grip integrity.</p>
+                        </div>
+                        <div class="rank-node-status">🔒 LOCKED</div>
+                    </div>
+
+                    <div class="rank-node locked" data-level="50">
+                        <div class="rank-node-icon">👑</div>
+                        <div class="rank-node-content">
+                            <div class="rank-node-level">TIER 50</div>
+                            <h3>ULTIMATE BEAST</h3>
+                            <p>Apex transformation. Absolute physical transcendence.</p>
+                        </div>
+                        <div class="rank-node-status">🔒 LOCKED</div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- =========================================
+             PAGE 4: CONTROL CENTER / SETTINGS
+        ========================================= -->
+        <section class="page" id="settingsPage">
+            <div class="page-heading">
+                <span class="section-subtitle">DEVICE & PROFILE</span>
+                <h1>CONTROL CENTER</h1>
+            </div>
+
+            <div class="settings-card">
+                <label>
+                    CURRENT BODYWEIGHT (KG)
+                    <input type="number" id="userWeight" value="77" min="30" max="250" step="0.1">
+                </label>
+                
+                <label>
+                    TARGET PHYSIQUE WEIGHT (KG)
+                    <input type="number" id="targetWeight" value="90" min="30" max="250" step="0.1">
+                </label>
+                
+                <label>
+                    DEFAULT PROTOCOL MODE
+                    <select id="settingsTrainingMode">
+                        <option value="gym">Gym Matrix (Full Equipment)</option>
+                        <option value="home">Field Protocol (Bodyweight & Weighted Pack)</option>
+                    </select>
+                </label>
+                
+                <label class="sound-setting">
+                    TACTILE & ACOUSTIC TELEMETRY
+                    <span class="sound-setting-row">
+                        <input type="checkbox" id="soundEnabled" checked>
+                        <span>ENABLE POLYPHONIC AUDIO & HAPTICS</span>
+                    </span>
+                </label>
+                
+                <button class="save-settings-button" type="button" onclick="saveSettings()">COMMIT SYSTEM CHANGES</button>
+
+                <div class="settings-danger-zone">
+                    <span class="danger-title">FACTORY SYSTEM RESET</span>
+                    <p>Wipe all active levels, history, tonnage telemetry, and start back at Tier 1.</p>
+                    <button class="danger-reset-btn" type="button" onclick="factoryResetApp()">WIPE ALL DATA & RESET</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- =========================================
+         SLIDING NATIVE BOTTOM SHEET HUD
+    ========================================= -->
+    <div class="workout-modal" id="workoutModal">
+        <div class="modal-overlay" onclick="closeWorkout()"></div>
+        <div class="modal-content">
+            <div class="modal-handle"></div>
+            <button class="modal-close" type="button" onclick="closeWorkout()" aria-label="Close modal">×</button>
+            
+            <div class="modal-character-image" id="modalCharacterImage"></div>
+            <span class="modal-owner" id="modalOwner">BEAST</span>
+            <h2 id="modalTitle">WORKOUT</h2>
+            <p id="modalDescription"></p>
+
+            <div class="exercise-list" id="exerciseList"></div>
+
+            <div class="rest-timer" id="restTimerPanel" hidden>
+                <div>
+                    <span class="timer-label">REST TIMER</span>
+                    <strong id="restTimerDisplay">01:00</strong>
+                </div>
+                <div class="rest-actions">
+                    <button type="button" onclick="startRest(60)">60s</button>
+                    <button type="button" onclick="startRest(90)">90s</button>
+                    <button type="button" onclick="startRest(120)">120s</button>
+                    <button type="button" onclick="skipRest()">SKIP</button>
+                </div>
+            </div>
+
+            <button class="complete-workout-button" type="button" onclick="completeWorkout()">COMPLETE SESSION ✓</button>
+        </div>
+    </div>
+
+    <!-- =========================================
+         EXERCISE INTELLIGENCE MODAL (BOTTOM-SHEET)
+    ========================================= -->
+    <div class="intel-modal" id="exerciseIntelModal">
+        <div class="intel-overlay" onclick="closeExerciseIntel()"></div>
+        <div class="intel-content">
+            <div class="modal-handle"></div>
+            <button class="intel-close" type="button" onclick="closeExerciseIntel()" aria-label="Close intel">×</button>
+            
+            <div class="intel-tag">BIOMECHANICAL PROTOCOL</div>
+            <h2 id="intelModalTitle">EXERCISE INTEL</h2>
+
+            <div class="intel-blocks">
+                <div class="intel-block">
+                    <span class="intel-label">🎯 TARGETED MUSCLES</span>
+                    <p id="intelTargets"></p>
+                </div>
+
+                <div class="intel-block">
+                    <span class="intel-label">⚡ DAILY LIFE & ATHLETIC BENEFIT</span>
+                    <p id="intelDailyLife"></p>
+                </div>
+
+                <div class="intel-block">
+                    <span class="intel-label">🔥 PHYSIQUE TRANSFORMATION</span>
+                    <p id="intelTransform"></p>
+                </div>
+
+                <div class="intel-block">
+                    <span class="intel-label">📖 EXECUTION & FORM CUES</span>
+                    <ol id="intelHowTo" class="intel-steps"></ol>
+                </div>
+            </div>
+
+            <button class="intel-confirm-btn" type="button" onclick="closeExerciseIntel()">UNDERSTOOD — RESUME</button>
+        </div>
+    </div>
+
+    <!-- =========================================
+         MOBILE BOTTOM NAVIGATION
+    ========================================= -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-page="home" type="button" onclick="showPage('home')">
+            <span class="nav-icon">🏠</span><span>BASE</span>
+        </button>
+        <button class="nav-item" data-page="progress" type="button" onclick="showPage('progress')">
+            <span class="nav-icon">📊</span><span>DATA</span>
+        </button>
+        <button class="nav-item" data-page="ascension" type="button" onclick="showPage('ascension')">
+            <span class="nav-icon">⚔️</span><span>ASCEND</span>
+        </button>
+        <button class="nav-item" data-page="settings" type="button" onclick="showPage('settings')">
+            <span class="nav-icon">⚙️</span><span>CONFIG</span>
+        </button>
+    </nav>
+
+    <!-- CORE SCRIPT -->
+    <script src="script.js"></script>
+</body>
+</html>

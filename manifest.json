@@ -1,0 +1,44 @@
+{
+  "name": "Beast Ascension — Anime Workout Tracker",
+  "short_name": "BeastAscension",
+  "description": "Four-beast biomechanical progression engine. Forge raw power, explosive fists, and athletic speed.",
+  "id": "/?source=pwa",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#030304",
+  "theme_color": "#030304",
+  "orientation": "portrait-primary",
+  "categories": ["fitness", "sports", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Workout",
+      "short_name": "Train",
+      "description": "Jump straight into today's Beast session",
+      "url": "./index.html#workoutSection",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Progress",
+      "short_name": "Progress",
+      "description": "Inspect your Ascension Level and Stats",
+      "url": "./index.html#progressPage",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
