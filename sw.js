@@ -3,7 +3,7 @@
    Dev-Safe Live Reload Engine + Zero-Fail Caching
 ========================================================= */
 
-const CACHE_VERSION = "beast-v7-enterprise";
+const CACHE_VERSION = "beast-v8-enterprise";
 const PRECACHE_ASSETS = [
     "./",
     "./index.html",
@@ -16,7 +16,7 @@ const PRECACHE_ASSETS = [
     "./assets/hybrid.png",
     "./assets/day5.png",
     "./assets/icon-192.png",
-    "./assets/icon-512.jpg"
+    "./assets/icon-512.png"
 ];
 
 // Pre-cache assets safely

@@ -1233,13 +1233,13 @@ window.completeWorkout = function () {
 };
 
 function updateStreak() {
-    const today = new Date().toISOString().split("T")[0];
+    const today = dateKey(new Date());
     const lastDate = beastProgress.lastWorkoutDate;
 
     if (!lastDate) {
         beastProgress.streak = 1;
     } else {
-        const diffDays = Math.floor((new Date(today) - new Date(lastDate)) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.round((new Date(`${today}T00:00:00`) - new Date(`${lastDate}T00:00:00`)) / (1000 * 60 * 60 * 24));
         if (diffDays === 1) beastProgress.streak += 1;
         else if (diffDays > 1) beastProgress.streak = 1;
     }

@@ -1984,3 +1984,155 @@ input, textarea, select {
 .nav-icon {
     font-size: 18px;
 }
+
+/* =========================================================
+   MOBILE OVERFLOW HARDENING — WORKOUT SHEET
+   Keeps exercise controls inside narrow phone viewports.
+========================================================= */
+.exercise-information {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.exercise-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.exercise-actions {
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.exercise-telemetry {
+    min-width: 0;
+}
+
+.exercise-telemetry input {
+    width: 0;
+}
+
+.rest-timer {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.rest-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.modal-content,
+.intel-content {
+    min-width: 0;
+    width: min(100%, 760px) !important;
+}
+
+@media (max-width: 479px) {
+    .workout-modal,
+    .intel-modal {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .modal-content,
+    .intel-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: calc(100dvh - 8px);
+        padding: 12px 12px calc(20px + var(--safe-bottom));
+        border-radius: 20px 20px 0 0;
+    }
+
+    .modal-close,
+    .intel-close {
+        top: 10px;
+        right: 10px;
+    }
+
+    .modal-character-image {
+        height: 180px;
+        margin-bottom: 12px;
+    }
+
+    .modal-content h2 {
+        font-size: 28px;
+        line-height: 1;
+    }
+
+    .exercise-header-row {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .exercise-label {
+        flex: 1 1 100%;
+        min-width: 0;
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .exercise-actions {
+        width: 100%;
+        flex: 1 1 100%;
+        justify-content: flex-end;
+        padding-left: 36px;
+    }
+
+    .exercise-item {
+        padding: 11px 12px;
+    }
+
+    .exercise-name {
+        font-size: 14px;
+        line-height: 1.25;
+    }
+
+    .exercise-sets {
+        font-size: 10px;
+    }
+
+    .split-timer-btn {
+        padding: 6px 9px;
+    }
+
+    .exercise-telemetry {
+        gap: 6px;
+    }
+
+    .exercise-telemetry input {
+        min-width: 0;
+        font-size: 12px;
+    }
+
+    .rest-timer {
+        align-items: flex-start;
+    }
+
+    .rest-actions {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    .modal-content,
+    .intel-content {
+        width: min(100%, 760px) !important;
+    }
+}
+
+/* Prevent long dynamic text from creating horizontal overflow anywhere. */
+.page,
+section,
+article,
+.modal-content,
+.intel-content,
+.ultimate-panel,
+.current-rank-card {
+    min-width: 0;
+}
