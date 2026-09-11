@@ -39,7 +39,7 @@ try {
     if (saved && typeof saved === "object") beastProgress = { ...defaultProgress, ...saved };
 } catch (_) {}
 
-/* Workouts Catalog */
+/* Workouts Catalog — Mapped Correctly */
 const workouts = {
     gyomei: {
         owner: "🗿 GYOMEI — STRENGTH & SIZE",
@@ -967,7 +967,7 @@ window.startWorkout = function (workoutKey) {
         img.style.backgroundPosition = "center 30%";
         img.style.backgroundSize = "cover";
     } else if (workoutKey === "hybrid") {
-        img.style.backgroundPosition = "center 25%";
+        img.style.backgroundPosition = "center";
         img.style.backgroundSize = "cover";
     }
 
