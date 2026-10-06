@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
     
-    <title>Beast Ascension — Elite Physical Conditioning & Protocol</title>
-    <meta name="description" content="Anime-inspired four-beast biomechanical progression engine. Forge raw power, explosive fists, and athletic speed.">
-    <meta name="theme-color" content="#030304">
+    <title>Beast Ascension — Training</title>
+    <meta name="description" content="A local-first training, progress, and nutrition log.">
+    <meta name="theme-color" content="#050608">
     <meta name="color-scheme" content="dark">
     
     <!-- PWA & Apple Web App Meta -->
@@ -18,13 +18,11 @@
 
     <!-- CSS Stylesheet -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fitness-os.css">
 
-    <!-- High-Performance Typography Preconnects -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#mainContent">Skip to content</a>
 
     <div class="app">
         <!-- =========================================
@@ -32,8 +30,8 @@
         ========================================= -->
         <header class="main-header">
             <div class="logo">
-                <span class="logo-beast">BEAST</span>
-                <span class="logo-ascension">ASCENSION</span>
+                <span class="logo-beast">Beast</span>
+                <span class="logo-ascension">Ascension</span>
             </div>
             
             <div class="level-container">
@@ -42,45 +40,87 @@
             </div>
         </header>
 
+        <main class="page-stack" id="mainContent" tabindex="-1">
+
         <!-- =========================================
              PAGE 1: BASE / HOME
         ========================================= -->
-        <main class="page active-page" id="homePage">
+        <section class="page active-page" id="homePage" aria-label="Home">
             <!-- HERO HUD -->
-            <section class="hero">
-                <div class="hero-content">
-                    <div class="hero-tag">⚔ FOUR BEAST PROTOCOL</div>
-                    <h1 class="hero-title">BEAST<br><span>ASCENSION</span></h1>
-                    <p class="hero-description">
-                        Build the skeletal density of Gyomei, the kinetic drive of Akaza, 
-                        the speed of Toji, and the combat power of Baki.
-                    </p>
-                    
-                    <div class="hero-stats">
-                        <div class="hero-stat">
-                            <span class="hero-stat-value">6</span>
-                            <span class="hero-stat-label">SPLIT DAYS</span>
-                        </div>
-                        <div class="hero-stat">
-                            <span class="hero-stat-value">4</span>
-                            <span class="hero-stat-label">BEASTS</span>
-                        </div>
-                        <div class="hero-stat">
-                            <span class="hero-stat-value">90</span>
-                            <span class="hero-stat-label">MIN MAX</span>
-                        </div>
+            <section class="today-card" aria-labelledby="todayTitle">
+                <div class="today-copy">
+                    <span class="today-eyebrow" id="todayEyebrow">TODAY</span>
+                    <h2 id="todayTitle">Your training plan</h2>
+                    <p id="todayDescription">A focused session is ready when you are.</p>
+                </div>
+                <div class="today-action-wrap">
+                    <span class="today-status" id="todayStatus">UP NEXT</span>
+                <button class="primary-action" id="todayAction" type="button" onclick="startTodayWorkout()">Start today's workout</button>
+            </div>
+            </section>
+            <section class="home-snapshot" aria-labelledby="homeSnapshotTitle">
+                <div class="snapshot-heading">
+                    <div>
+                        <span class="section-subtitle">LAST 7 DAYS</span>
+                        <h2 id="homeSnapshotTitle">Your snapshot</h2>
                     </div>
-                    
-                    <button class="hero-button" type="button" onclick="scrollToWorkout()">INITIATE ASCENSION</button>
+                    <button class="text-action" type="button" onclick="showPage('progress')">View progress <span aria-hidden="true">↗</span></button>
+                </div>
+                <div class="snapshot-metrics">
+                    <article class="snapshot-metric">
+                        <span class="snapshot-label">Sessions</span>
+                        <strong id="homeSessionsValue">0</strong>
+                        <span class="snapshot-detail" id="homeSessionsDetail">in the last 7 days</span>
+                    </article>
+                    <article class="snapshot-metric">
+                        <span class="snapshot-label">Protein today</span>
+                        <strong id="homeProteinValue">—</strong>
+                        <span class="snapshot-detail" id="homeProteinDetail">Set a target to track intake</span>
+                        <div class="snapshot-progress" role="progressbar" aria-label="Protein target progress" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" id="homeProteinProgress"><span></span></div>
+                        <button class="snapshot-link" type="button" onclick="showPage('nutrition')">Nutrition details</button>
+                    </article>
+                    <article class="snapshot-metric">
+                        <span class="snapshot-label">Latest weight</span>
+                        <strong id="homeWeightValue">—</strong>
+                        <span class="snapshot-detail" id="homeWeightDetail">No weigh-in logged</span>
+                        <button class="snapshot-link" type="button" onclick="showPage('progress')">Progress details</button>
+                    </article>
                 </div>
             </section>
+            <section class="training-insight" aria-labelledby="trainingInsightTitle">
+                <div class="insight-signal" aria-hidden="true"></div>
+                <div>
+                    <span class="section-subtitle">BASED ON YOUR LOG</span>
+                    <h2 id="trainingInsightTitle">Training insight</h2>
+                    <p id="homeTrainingInsight" aria-live="polite">Log a session to start seeing your training rhythm.</p>
+                </div>
+                <button class="insight-action" type="button" onclick="showPage('progress')">Open progress <span aria-hidden="true">↗</span></button>
+            </section>
+            <section class="hero">
+                <div class="hero-content">
+                    <div class="hero-tag">TRAINING, BUILT AROUND YOU</div>
+                    <h1 class="hero-title">Beast<br><span>Ascension</span></h1>
+                    <p class="hero-description">
+                        A focused system for strength, speed, and steady progress.
+                    </p>
+                    <button class="hero-button" type="button" onclick="showPage('workout')">Browse training plans</button>
+                </div>
+            </section>
+        </section>
 
-            <!-- TRAINING ENVIRONMENT SELECTOR -->
+        <!-- =========================================
+             PAGE 2: WORKOUT LIBRARY
+        ========================================= -->
+        <section class="page" id="workoutPage" aria-label="Workouts">
+            <div class="page-heading">
+                <span class="section-subtitle">YOUR TRAINING</span>
+                <h1>Choose a session</h1>
+            </div>            <!-- TRAINING ENVIRONMENT SELECTOR -->
             <section class="training-section" id="trainingSection">
                 <div class="section-header">
                     <div>
                         <span class="section-subtitle">ENVIRONMENT PROTOCOL</span>
-                        <h2 class="section-title">TRAINING MODE</h2>
+                        <h2 class="section-title">Choose a workout</h2>
                     </div>
                 </div>
                 
@@ -88,7 +128,7 @@
                     <button class="mode-btn active" id="gymModeBtn" type="button" onclick="setTrainingMode('gym')">
                         <span class="mode-icon">🏋️</span>
                         <div>
-                            <span class="mode-title">GYM MATRIX</span>
+                            <span class="mode-title">Gym</span>
                             <span class="mode-description">Barbells, cables & heavy iron</span>
                         </div>
                     </button>
@@ -96,7 +136,7 @@
                     <button class="mode-btn" id="homeModeBtn" type="button" onclick="setTrainingMode('home')">
                         <span class="mode-icon">🏠</span>
                         <div>
-                            <span class="mode-title">FIELD PROTOCOL</span>
+                            <span class="mode-title">At home</span>
                             <span class="mode-description">Bodyweight & pack workouts</span>
                         </div>
                     </button>
@@ -108,14 +148,15 @@
                 <div class="section-header">
                     <div>
                         <span class="section-subtitle">WEEKLY SYSTEM</span>
-                        <h2 class="section-title">BEAST SESSIONS</h2>
+                        <h2 class="section-title">Training plan</h2>
                     </div>
-                    <div class="section-badge">6 PROTOCOLS</div>
+                    <div class="section-badge">6 sessions</div>
                 </div>
 
                 <div class="workout-grid">
                     <!-- DAY 1: GYOMEI -->
                     <article class="workout-card gyomei" data-workout="gyomei">
+                        <img class="workout-art" src="assets/gyomei.jpg" alt="" loading="lazy" decoding="async">
                         <div class="card-top">
                             <span class="day-badge">DAY 1</span>
                             <span class="owner owner-gyomei">🗿 GYOMEI</span>
@@ -126,11 +167,12 @@
                             <p class="workout-description">Dense compound barbell movements for unstoppable spinal, quad, and back thickness.</p>
                             <div class="workout-tags"><span>STRENGTH</span><span>HYPERTROPHY</span><span>DENSITY</span></div>
                         </div>
-                        <button class="start-button" type="button" onclick="startWorkout('gyomei')">DEPLOY WORKOUT <span>⚡</span></button>
+                        <button class="start-button" type="button" data-workout-key="gyomei">DEPLOY WORKOUT <span>⚡</span></button>
                     </article>
 
                     <!-- DAY 2: AKAZA -->
                     <article class="workout-card akaza" data-workout="akaza">
+                        <img class="workout-art" src="assets/akaza.jpg" alt="" loading="lazy" decoding="async">
                         <div class="card-top">
                             <span class="day-badge">DAY 2</span>
                             <span class="owner owner-akaza">👊 AKAZA</span>
@@ -141,11 +183,12 @@
                             <p class="workout-description">Explosive upper pressing mechanics, shoulder deltoid capping, and rapid boxing combinations.</p>
                             <div class="workout-tags"><span>HAND SPEED</span><span>DRIVE</span><span>EXPLOSIVE</span></div>
                         </div>
-                        <button class="start-button" type="button" onclick="startWorkout('akaza')">DEPLOY WORKOUT <span>👊</span></button>
+                        <button class="start-button" type="button" data-workout-key="akaza">DEPLOY WORKOUT <span>👊</span></button>
                     </article>
 
                     <!-- DAY 3: TOJI -->
                     <article class="workout-card toji" data-workout="toji">
+                        <img class="workout-art" src="assets/toji.jpg" alt="" loading="lazy" decoding="async">
                         <div class="card-top">
                             <span class="day-badge">DAY 3</span>
                             <span class="owner owner-toji">⚡ TOJI</span>
@@ -156,11 +199,12 @@
                             <p class="workout-description">Maximum velocity sprints, elastic tendon plyometrics, and functional torso deceleration.</p>
                             <div class="workout-tags"><span>ACCELERATION</span><span>AGILITY</span><span>REFLEX</span></div>
                         </div>
-                        <button class="start-button" type="button" onclick="startWorkout('toji')">DEPLOY WORKOUT <span>⚡</span></button>
+                        <button class="start-button" type="button" data-workout-key="toji">DEPLOY WORKOUT <span>⚡</span></button>
                     </article>
 
                     <!-- DAY 4: BAKI -->
                     <article class="workout-card baki" data-workout="baki">
+                        <img class="workout-art" src="assets/baki.jpg" alt="" loading="lazy" decoding="async">
                         <div class="card-top">
                             <span class="day-badge">DAY 4</span>
                             <span class="owner owner-baki">🐉 BAKI</span>
@@ -171,11 +215,12 @@
                             <p class="workout-description">Violent posterior chain pull strength, forearm tendon endurance, and combat conditioning.</p>
                             <div class="workout-tags"><span>CRUSH GRIP</span><span>DEADLIFT</span><span>SAVAGERY</span></div>
                         </div>
-                        <button class="start-button" type="button" onclick="startWorkout('baki')">DEPLOY WORKOUT <span>🐉</span></button>
+                        <button class="start-button" type="button" data-workout-key="baki">DEPLOY WORKOUT <span>🐉</span></button>
                     </article>
 
                     <!-- DAY 5: FUSION -->
                     <article class="workout-card fusion" data-workout="fusion">
+                        <img class="workout-art" src="assets/day5.jpg" alt="" loading="lazy" decoding="async">
                         <div class="card-top">
                             <span class="day-badge">DAY 5</span>
                             <span class="owner owner-fusion">🗿⚡ FUSION</span>
@@ -186,11 +231,12 @@
                             <p class="workout-description">Synergy of pure high-load squats, presses, and athletic explosive jumps.</p>
                             <div class="workout-tags"><span>STRENGTH</span><span>VELOCITY</span><span>FUNCTIONAL</span></div>
                         </div>
-                        <button class="start-button" type="button" onclick="startWorkout('fusion')">DEPLOY WORKOUT <span>🔥</span></button>
+                        <button class="start-button" type="button" data-workout-key="fusion">DEPLOY WORKOUT <span>🔥</span></button>
                     </article>
 
                     <!-- DAY 6: HYBRID -->
                     <article class="workout-card hybrid" data-workout="hybrid">
+                        <img class="workout-art" src="assets/hybrid.jpg" alt="" loading="lazy" decoding="async">
                         <div class="card-top">
                             <span class="day-badge">DAY 6</span>
                             <span class="owner owner-hybrid">⚔️ ALL 4 BEASTS</span>
@@ -201,30 +247,83 @@
                             <p class="workout-description">The ultimate trial challenging muscular load, sprint output, and mental grit.</p>
                             <div class="workout-tags"><span>FULL SPECTRUM</span><span>RESILIENCE</span><span>APEX</span></div>
                         </div>
-                        <button class="start-button" type="button" onclick="startWorkout('hybrid')">DEPLOY CRUCIBLE <span>⚔️</span></button>
+                        <button class="start-button" type="button" data-workout-key="hybrid">DEPLOY CRUCIBLE <span>⚔️</span></button>
                     </article>
                 </div>
             </section>
 
-            <!-- REST PROTOCOL -->
-            <section class="rest-section">
-                <div class="rest-icon">🛌</div>
-                <div class="rest-card">
-                    <span class="section-subtitle">CYCLE 07</span>
-                    <h2>BEAST RECOVERY</h2>
-                    <p>Replenish systemic glycogen stores, enforce 8+ hours sleep architecture, and hydrate.</p>
+        </section>
+        <section class="page" id="nutritionPage" aria-label="Nutrition">
+            <div class="page-heading">
+                <span class="section-subtitle">DAILY INTAKE</span>
+                <h1>Nutrition</h1>
+                <p>Log what you eat and compare it with goals you set.</p>
+            </div>
+            <section class="nutrition-summary-section" aria-labelledby="nutritionSummaryTitle">
+                <div class="section-header">
+                    <div><span class="section-subtitle">TODAY</span><h2 class="section-title" id="nutritionSummaryTitle">Intake overview</h2></div>
+                    <strong id="nutritionDateLabel"></strong>
+                </div>
+                <div id="nutritionSummary" class="nutrition-summary" aria-live="polite"></div>
+                <div class="water-card">
+                    <div><span class="section-subtitle">HYDRATION</span><strong id="waterTotal">0 ml</strong><span class="water-caption">Water logged today</span></div>
+                    <div class="water-actions"><button type="button" onclick="addWater(250)">+250 ml</button><button type="button" onclick="addWater(500)">+500 ml</button></div>
                 </div>
             </section>
-        </main>
-
-        <!-- =========================================
-             PAGE 2: PROGRESS & ANALYTICS
-        ========================================= -->
-        <section class="page" id="progressPage">
+            <section class="nutrition-goals-panel ultimate-panel" aria-labelledby="nutritionGoalsTitle">
+                <h2 id="nutritionGoalsTitle">Daily targets</h2>
+                <p>Set your own targets. These numbers are saved on this device.</p>
+                <form id="nutritionGoalsForm" class="nutrition-form" onsubmit="saveNutritionGoals(event)">
+                    <label>Calories <span>kcal</span><input id="goalCalories" type="number" min="1" step="1" required></label>
+                    <label>Protein <span>g</span><input id="goalProtein" type="number" min="0" step="1" required></label>
+                    <label>Carbohydrates <span>g</span><input id="goalCarbs" type="number" min="0" step="1"></label>
+                    <label>Fat <span>g</span><input id="goalFat" type="number" min="0" step="1"></label>
+                    <label>Fiber <span>g</span><input id="goalFiber" type="number" min="0" step="1"></label>
+                    <button type="submit" class="secondary-action">Save targets</button>
+                </form>
+            </section>
+            <section class="nutrition-log-panel ultimate-panel" aria-labelledby="foodLogTitle">
+                <h2 id="foodLogTitle">Log food</h2>
+                <p>Enter nutrition from your package or meal estimate.</p>
+                <form id="foodLogForm" class="nutrition-form food-log-form" onsubmit="addFoodEntry(event)">
+                    <label class="food-name-field">Food or meal<input id="foodName" type="text" maxlength="80" placeholder="e.g. Oatmeal and yogurt" required></label>
+                    <label>Calories <span>kcal</span><input id="foodCalories" type="number" min="0" step="1" required></label>
+                    <label>Protein <span>g</span><input id="foodProtein" type="number" min="0" step="0.1" required></label>
+                    <label>Carbs <span>g</span><input id="foodCarbs" type="number" min="0" step="0.1" required></label>
+                    <label>Fat <span>g</span><input id="foodFat" type="number" min="0" step="0.1" required></label>
+                    <label>Fiber <span>g</span><input id="foodFiber" type="number" min="0" step="0.1" value="0" required></label>
+                    <button type="submit" class="primary-action">Add to today's log</button>
+                </form>
+            </section>
+            <section class="nutrition-history-section" aria-labelledby="foodHistoryTitle">
+                <div class="section-header"><div><span class="section-subtitle">TODAY</span><h2 class="section-title" id="foodHistoryTitle">Food log</h2></div></div>
+                <div id="foodLogList" class="food-log-list" aria-live="polite"></div>
+            </section>
+        </section>
+        <section class="page" id="progressPage" aria-label="Progress">
             <div class="page-heading">
-                <span class="section-subtitle">BIOMETRIC EVOLUTION</span>
-                <h1>ASCENSION TELEMETRY</h1>
+                <span class="section-subtitle">YOUR TRAINING</span>
+                <h1>Progress</h1>
             </div>
+
+            <section class="weight-trend-panel" aria-labelledby="weightTrendTitle">
+                <div class="trend-heading">
+                    <div>
+                        <span class="section-subtitle">BODYWEIGHT</span>
+                        <h2 id="weightTrendTitle">Weight trend</h2>
+                    </div>
+                    <div class="trend-range" role="group" aria-label="Weight trend range">
+                        <button type="button" class="trend-range-button" data-range="7" aria-pressed="false" onclick="setWeightTrendRange(7)">7D</button>
+                        <button type="button" class="trend-range-button" data-range="30" aria-pressed="true" onclick="setWeightTrendRange(30)">30D</button>
+                        <button type="button" class="trend-range-button" data-range="90" aria-pressed="false" onclick="setWeightTrendRange(90)">90D</button>
+                        <button type="button" class="trend-range-button" data-range="365" aria-pressed="false" onclick="setWeightTrendRange(365)">1Y</button>
+                    </div>
+                </div>
+                <div id="weightTrendChart" class="weight-trend-chart" aria-live="polite">
+                    <div class="chart-empty"><strong>Build your trend</strong><span>Log at least two weigh-ins to compare over time.</span></div>
+                </div>
+                <p id="weightTrendSummary" class="weight-trend-summary">Only your logged measurements appear here.</p>
+            </section>
 
             <!-- ACHIEVEMENTS -->
             <section class="achievements-section">
@@ -238,17 +337,17 @@
 
             <!-- STATS MATRIX -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-value" id="workoutsCompleted">0</span>
-                    <span class="stat-label">SESSIONS</span>
+                <div class="stat-card activity-stat" data-ring="sessions">
+                    <div class="activity-ring sessions-ring"><span class="stat-value" id="workoutsCompleted">0</span></div>
+                    <span class="stat-label">Sessions</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="currentStreak">0</span>
-                    <span class="stat-label">DAY STREAK</span>
+                <div class="stat-card activity-stat" data-ring="streak">
+                    <div class="activity-ring streak-ring"><span class="stat-value" id="currentStreak">0</span></div>
+                    <span class="stat-label">Day streak</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="progressLevel">1</span>
-                    <span class="stat-label">TIER</span>
+                <div class="stat-card activity-stat" data-ring="tier">
+                    <div class="activity-ring tier-ring"><span class="stat-value" id="progressLevel">1</span></div>
+                    <span class="stat-label">Tier</span>
                 </div>
             </div>
 
@@ -339,13 +438,9 @@
                     <p class="history-empty">NO SESSIONS LOGGED YET.</p>
                 </div>
             </section>
-        </section>
 
-        <!-- =========================================
-             PAGE 3: ASCENSION ROADMAP
-        ========================================= -->
-        <section class="page" id="ascensionPage">
-            <section class="rank-section">
+
+                        <section class="rank-section">
                 <div class="rank-section-header">
                     <div>
                         <span class="section-subtitle">ASCENSION HIERARCHY</span>
@@ -441,13 +536,13 @@
         <!-- =========================================
              PAGE 4: CONTROL CENTER / SETTINGS
         ========================================= -->
-        <section class="page" id="settingsPage">
+        <section class="page" id="settingsPage" aria-label="Profile and settings">
             <div class="page-heading">
-                <span class="section-subtitle">DEVICE & PROFILE</span>
-                <h1>CONTROL CENTER</h1>
+                <span class="section-subtitle">YOUR PROFILE</span>
+                <h1>Profile & settings</h1>
             </div>
 
-            <div class="settings-card">
+            <div class="settings-card" aria-label="Profile settings">
                 <label>
                     CURRENT BODYWEIGHT (KG)
                     <input type="number" id="userWeight" value="77" min="30" max="250" step="0.1">
@@ -483,14 +578,15 @@
                 </div>
             </div>
         </section>
+        </main>
     </div>
 
     <!-- =========================================
              SLIDING NATIVE BOTTOM SHEET HUD
     ========================================= -->
-    <div class="workout-modal" id="workoutModal">
-        <div class="modal-overlay" onclick="closeWorkout()"></div>
-        <div class="modal-content">
+    <div class="workout-modal" id="workoutModal" aria-hidden="true">
+        <div class="modal-overlay" onclick="closeWorkout()" aria-hidden="true"></div>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription" tabindex="-1">
             <div class="modal-handle"></div>
             <button class="modal-close" type="button" onclick="closeWorkout()" aria-label="Close modal">×</button>
             
@@ -502,28 +598,35 @@
             <div class="exercise-list" id="exerciseList"></div>
 
             <div class="rest-timer" id="restTimerPanel" hidden>
-                <div>
-                    <span class="timer-label">REST TIMER</span>
-                    <strong id="restTimerDisplay">01:00</strong>
+                <div class="rest-timer-copy">
+                    <span class="timer-label">Rest timer</span>
+                    <span id="restNextExercise">Next set is ready when you are.</span>
+                </div>
+                <div class="rest-timer-visual" aria-hidden="true">
+                    <svg viewBox="0 0 56 56"><circle class="rest-ring-track" cx="28" cy="28" r="23"></circle><circle class="rest-ring-progress" id="restTimerRing" cx="28" cy="28" r="23"></circle></svg>
+                    <strong id="restTimerDisplay" aria-live="off">01:00</strong>
                 </div>
                 <div class="rest-actions">
-                    <button type="button" onclick="startRest(60)">60s</button>
-                    <button type="button" onclick="startRest(90)">90s</button>
-                    <button type="button" onclick="startRest(120)">120s</button>
-                    <button type="button" onclick="skipRest()">SKIP</button>
+                    <button type="button" onclick="adjustRest(-15)" aria-label="Reduce rest by 15 seconds">−15</button>
+                    <button type="button" id="restPauseButton" onclick="toggleRestTimer()" aria-pressed="false">Pause</button>
+                    <button type="button" onclick="adjustRest(30)" aria-label="Add 30 seconds">+30</button>
+                    <button type="button" onclick="skipRest()">Skip</button>
                 </div>
             </div>
 
-            <button class="complete-workout-button" type="button" onclick="completeWorkout()">COMPLETE SESSION ✓</button>
+            <div class="workout-footer-actions">
+                <button class="discard-workout-button" type="button" onclick="discardWorkout()">Discard</button>
+                <button class="complete-workout-button" type="button" onclick="completeWorkout()">Finish session ✓</button>
+            </div>
         </div>
     </div>
 
     <!-- =========================================
          EXERCISE INTELLIGENCE MODAL (BOTTOM-SHEET)
     ========================================= -->
-    <div class="intel-modal" id="exerciseIntelModal">
-        <div class="intel-overlay" onclick="closeExerciseIntel()"></div>
-        <div class="intel-content">
+    <div class="intel-modal" id="exerciseIntelModal" aria-hidden="true">
+        <div class="intel-overlay" onclick="closeExerciseIntel()" aria-hidden="true"></div>
+        <div class="intel-content" role="dialog" aria-modal="true" aria-labelledby="intelModalTitle" tabindex="-1">
             <div class="modal-handle"></div>
             <button class="intel-close" type="button" onclick="closeExerciseIntel()" aria-label="Close intel">×</button>
             
@@ -559,18 +662,21 @@
     <!-- =========================================
          MOBILE BOTTOM NAVIGATION
     ========================================= -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" data-page="home" type="button" onclick="showPage('home')">
-            <span class="nav-icon">🏠</span><span>BASE</span>
+    <nav class="bottom-nav" aria-label="Primary navigation">
+        <button class="nav-item active" data-page="home" type="button" onclick="showPage('home')" aria-current="page">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><span>Home</span>
+        </button>
+        <button class="nav-item" data-page="workout" type="button" onclick="showPage('workout')">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 7v10M3 9v6M18 7v10m3-8v6M6 12h12"/></svg></span><span>Workout</span>
+        </button>
+        <button class="nav-item" data-page="nutrition" type="button" onclick="showPage('nutrition')">
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v7m-3-7v4a3 3 0 0 0 6 0V3m-3 7v11M16 3v18m0-18c3 2 4 5 4 8h-4"/></svg></span><span>Nutrition</span>
         </button>
         <button class="nav-item" data-page="progress" type="button" onclick="showPage('progress')">
-            <span class="nav-icon">📊</span><span>DATA</span>
-        </button>
-        <button class="nav-item" data-page="ascension" type="button" onclick="showPage('ascension')">
-            <span class="nav-icon">⚔️</span><span>ASCEND</span>
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h17"/><path d="m7 15 4-4 3 2 6-7"/></svg></span><span>Progress</span>
         </button>
         <button class="nav-item" data-page="settings" type="button" onclick="showPage('settings')">
-            <span class="nav-icon">⚙️</span><span>CONFIG</span>
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span>Profile</span>
         </button>
     </nav>
 

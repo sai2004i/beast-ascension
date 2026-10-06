@@ -9,10 +9,22 @@ let workoutTimer = null;
 let workoutStartTime = null;
 let workoutPausedTime = 0;
 let isWorkoutTimerRunning = false;
-let completedExercises = new Set();
+let workoutTimerWasStarted = false;
+let completedSetIds = new Set();
+let workoutSetCount = 0;
+let workoutOpenedAt = null;
+let activeWorkoutMode = "gym";
+let workoutOpener = null;
+let intelOpener = null;
+let workoutDraftSaveTimer = null;
 let restTimerInterval = null;
 let restSecondsRemaining = 0;
+let restTimerTotalSeconds = 60;
+let restEndsAt = 0;
+let restTimerPaused = false;
 let calendarViewDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let weightTrendRangeDays = 30;
+const ACTIVE_WORKOUT_DRAFT_KEY = "beastActiveWorkoutDraft";
 
 /* Set-by-Set Split Timer State */
 let exerciseSplitTimes = {};
@@ -45,7 +57,7 @@ const workouts = {
         owner: "🗿 GYOMEI — STRENGTH & SIZE",
         title: "TITAN STRENGTH",
         description: "Heavy compound movements designed to forge dense skeletal frame and immovable power.",
-        image: "assets/hybrid.png",
+        image: "assets/gyomei.jpg",
         gym: [
             { name: "Barbell Back Squat", sets: "4 sets × 5–8 reps" },
             { name: "Barbell Bench Press", sets: "4 sets × 5–8 reps" },
@@ -67,7 +79,7 @@ const workouts = {
         owner: "👊 AKAZA — EXPLOSIVE POWER",
         title: "DEMON FISTS",
         description: "Explosive kinetic push force, shoulder armor, and rapid combat hand combinations.",
-        image: "assets/akaza.png",
+        image: "assets/akaza.jpg",
         gym: [
             { name: "Barbell Bench Press", sets: "4 sets × 6–8 reps" },
             { name: "Standing Overhead Press", sets: "4 sets × 6–10 reps" },
@@ -89,7 +101,7 @@ const workouts = {
         owner: "⚡ TOJI — SPEED & ATHLETICISM",
         title: "HEAVENLY SPEED",
         description: "Zero cursed energy. Pure physical dominance, sprint mechanics, and fast twitch reactive agility.",
-        image: "assets/toji.png",
+        image: "assets/toji.jpg",
         gym: [
             { name: "Box Jumps", sets: "5 sets × 3–5 explosive reps" },
             { name: "Jump Squats", sets: "4 sets × 6–10 reps" },
@@ -111,7 +123,7 @@ const workouts = {
         owner: "🐉 BAKI — RAW POWER",
         title: "MONSTER POWER",
         description: "Brutal posterior chain tension, crush grip, arm wrestling leverage, and combat conditioning.",
-        image: "assets/baki.png",
+        image: "assets/baki.jpg",
         gym: [
             { name: "Deadlift", sets: "4 sets × 3–5 reps" },
             { name: "Pull-ups", sets: "4 sets × max reps" },
@@ -133,7 +145,7 @@ const workouts = {
         owner: "🗿⚡ GYOMEI + TOJI — FUSION",
         title: "BEAST ATHLETE",
         description: "Powerbuilding fusion blending heavy compound loads with rapid kinetic transitions.",
-        image: "assets/day5.png",
+        image: "assets/day5.jpg",
         gym: [
             { name: "Front Squat", sets: "4 sets × 5–8 reps" },
             { name: "Push Press", sets: "4 sets × 5–8 reps" },
@@ -155,7 +167,7 @@ const workouts = {
         owner: "⚔️ ALL 4 BEASTS — HYBRID ASCENSION",
         title: "ULTIMATE HYBRID",
         description: "The complete crucible combining size, rapid strikes, sprint speed, and visceral grip power.",
-        image: "assets/hybrid.png",
+        image: "assets/hybrid.jpg",
         gym: [
             { name: "Barbell Squat", sets: "3 sets × 5–8 reps" },
             { name: "Barbell Bench Press", sets: "3 sets × 5–8 reps" },
@@ -647,66 +659,6 @@ const exerciseIntel = {
 };
 
 /* =========================================
-   DYNAMIC BEAST AURA PARTICLE CANVAS
-========================================= */
-class BeastParticleCanvas {
-    constructor() {
-        this.canvas = document.createElement("canvas");
-        this.canvas.id = "beastVFXCanvas";
-        document.body.prepend(this.canvas);
-        this.ctx = this.canvas.getContext("2d");
-        this.particles = [];
-        this.resize();
-        window.addEventListener("resize", () => this.resize());
-        this.initParticles(35);
-        this.render();
-    }
-
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
-
-    initParticles(count) {
-        for (let i = 0; i < count; i++) {
-            this.particles.push({
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                size: Math.random() * 2.5 + 0.8,
-                speedY: -(Math.random() * 0.8 + 0.2),
-                speedX: (Math.random() - 0.5) * 0.4,
-                alpha: Math.random() * 0.6 + 0.2
-            });
-        }
-    }
-
-    render() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        const isActive = Boolean(activeWorkout);
-
-        this.particles.forEach(p => {
-            p.y += p.speedY * (isActive ? 2.5 : 1);
-            p.x += p.speedX;
-            if (p.y < 0) {
-                p.y = this.canvas.height;
-                p.x = Math.random() * this.canvas.width;
-            }
-
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.size * (isActive ? 1.4 : 1), 0, Math.PI * 2);
-            this.ctx.fillStyle = isActive
-                ? `rgba(255, 30, 30, ${p.alpha * 1.3})`
-                : `rgba(180, 20, 20, ${p.alpha})`;
-            this.ctx.shadowBlur = isActive ? 12 : 5;
-            this.ctx.shadowColor = "#ff1e1e";
-            this.ctx.fill();
-        });
-
-        requestAnimationFrame(() => this.render());
-    }
-}
-
-/* =========================================
    POLYPHONIC AUDIO SYNTHESIS & HAPTICS
 ========================================= */
 let globalAudioCtx = null;
@@ -819,17 +771,144 @@ window.setTrainingMode = function (mode) {
 
 /* Page Navigation */
 window.showPage = function (pageName) {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active-page"));
-    document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("active"));
-
+    document.querySelectorAll(".page").forEach(page => page.classList.remove("active-page"));
+    document.querySelectorAll(".nav-item").forEach(button => {
+        button.classList.remove("active");
+        button.removeAttribute("aria-current");
+    });
     const targetPage = document.getElementById(`${pageName}Page`);
     const activeNav = document.querySelector(`.nav-item[data-page="${pageName}"]`);
-
-    if (targetPage) targetPage.classList.add("active-page");
-    if (activeNav) activeNav.classList.add("active");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!targetPage) return;
+    targetPage.classList.add("active-page");
+    if (activeNav) {
+        activeNav.classList.add("active");
+        activeNav.setAttribute("aria-current", "page");
+    }
+    if (pageName === "nutrition") renderNutrition();
+    window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 };
+
+window.startTodayWorkout = function () {
+    if (getActiveWorkoutDraft()) {
+        resumeWorkout();
+        return;
+    }
+    const plan = getTodayWorkout();
+    if (!plan.workout) {
+        showPage("workout");
+        return;
+    }
+    const loggedToday = getWorkoutHistory().some(entry => dateKey(entry.date) === dateKey(new Date()));
+    if (loggedToday) showPage("progress");
+    else startWorkout(plan.key);
+};
+
+function getTodayWorkout() {
+    const day = new Date().getDay();
+    const schedule = [null, "gyomei", "akaza", "toji", "baki", "fusion", "hybrid"];
+    const key = schedule[day];
+    return { key, workout: key ? workouts[key] : null, dayName: new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(new Date()) };
+}
+
+function renderTodayOverview() {
+    const eyebrow = document.getElementById("todayEyebrow");
+    const title = document.getElementById("todayTitle");
+    const description = document.getElementById("todayDescription");
+    const status = document.getElementById("todayStatus");
+    const action = document.getElementById("todayAction");
+    if (!eyebrow || !title || !description || !status || !action) return;
+    const draft = getActiveWorkoutDraft();
+    if (draft && workouts[draft.workout]) {
+        eyebrow.textContent = "READY TO CONTINUE";
+        title.textContent = workouts[draft.workout].title.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+        description.textContent = "Your saved session is ready. Your set entries are waiting where you left them.";
+        status.textContent = "SESSION SAVED";
+        action.textContent = "Resume workout";
+        return;
+    }
+    const plan = getTodayWorkout();
+    const loggedToday = getWorkoutHistory().some(entry => dateKey(entry.date) === dateKey(new Date()));
+    eyebrow.textContent = plan.dayName;
+    if (!plan.workout) {
+        title.textContent = "Recovery day";
+        description.textContent = "Take a rest day, hydrate, and let your training settle in.";
+        status.textContent = "REST";
+        action.textContent = "Explore your plan";
+        return;
+    }
+    title.textContent = plan.workout.title.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+    description.textContent = `${plan.workout.description} About 45–90 minutes.`;
+    status.textContent = loggedToday ? "SESSION LOGGED" : "TODAY'S SESSION";
+    action.textContent = loggedToday ? "View today's progress" : "Start today's workout";
+};
+
+function renderHomeSnapshot() {
+    const sessionsValue = document.getElementById("homeSessionsValue");
+    const sessionsDetail = document.getElementById("homeSessionsDetail");
+    const proteinValue = document.getElementById("homeProteinValue");
+    const proteinDetail = document.getElementById("homeProteinDetail");
+    const proteinProgress = document.getElementById("homeProteinProgress");
+    const proteinFill = proteinProgress?.querySelector("span");
+    const weightValue = document.getElementById("homeWeightValue");
+    const weightDetail = document.getElementById("homeWeightDetail");
+    if (!sessionsValue || !proteinValue || !weightValue) return;
+
+    const today = new Date();
+    const todayKey = dateKey(today);
+    const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
+    const startKey = dateKey(weekStart);
+    const workoutHistory = getWorkoutHistory();
+    const sessions = workoutHistory.filter(entry => {
+        const key = dateKey(entry.date);
+        return key && key >= startKey && key <= todayKey;
+    }).length;
+    sessionsValue.textContent = String(sessions);
+    if (sessionsDetail) sessionsDetail.textContent = sessions === 1 ? "session in the last 7 days" : "sessions in the last 7 days";
+    const insight = document.getElementById("homeTrainingInsight");
+    if (insight) {
+        const previousStart = dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 13));
+        const previousSessions = workoutHistory.filter(entry => {
+            const key = dateKey(entry.date);
+            return key && key >= previousStart && key < startKey;
+        }).length;
+        if (sessions === 0 && previousSessions === 0) {
+            insight.textContent = "No sessions logged in the last 14 days. Log your next session to restart your weekly rhythm.";
+        } else if (sessions > previousSessions) {
+            insight.textContent = "You logged " + sessions + (sessions === 1 ? " session" : " sessions") + " in the last 7 days, up from " + previousSessions + " in the previous 7.";
+        } else if (sessions < previousSessions) {
+            insight.textContent = "You logged " + sessions + (sessions === 1 ? " session" : " sessions") + " in the last 7 days, down from " + previousSessions + " in the previous 7.";
+        } else {
+            insight.textContent = "You matched the previous 7 days with " + sessions + (sessions === 1 ? " session." : " sessions.");
+        }
+    }
+
+    const goals = getNutritionGoals();
+    const proteinTarget = Number(goals?.protein) || 0;
+    const protein = getNutritionHistory().filter(entry => entry.type === "food" && dateKey(entry.date) === todayKey)
+        .reduce((total, entry) => total + (Number(entry.protein) || 0), 0);
+    if (proteinTarget > 0) {
+        const remaining = Math.max(0, proteinTarget - protein);
+        proteinValue.textContent = `${Math.round(protein)} / ${Math.round(proteinTarget)} g`;
+        if (proteinDetail) proteinDetail.textContent = remaining ? `${Math.round(remaining)} g remaining today` : "Daily target reached";
+        if (proteinProgress) {
+            proteinProgress.setAttribute("aria-valuemax", String(Math.round(proteinTarget)));
+            proteinProgress.setAttribute("aria-valuenow", String(Math.min(Math.round(proteinTarget), Math.round(protein))));
+        }
+        if (proteinFill) proteinFill.style.width = `${Math.min(100, protein / proteinTarget * 100)}%`;
+    } else {
+        proteinValue.textContent = "No target";
+        if (proteinDetail) proteinDetail.textContent = "Set one to track daily intake";
+        if (proteinProgress) {
+            proteinProgress.setAttribute("aria-valuemax", "0");
+            proteinProgress.setAttribute("aria-valuenow", "0");
+        }
+        if (proteinFill) proteinFill.style.width = "0%";
+    }
+
+    const latestWeight = getWeightHistory()[0];
+    weightValue.textContent = latestWeight ? `${Number(latestWeight.weight).toLocaleString()} kg` : "—";
+    if (weightDetail) weightDetail.textContent = latestWeight ? `Last logged ${new Date(latestWeight.date).toLocaleDateString()}` : "No weigh-in logged";
+}
 
 window.scrollToWorkout = function () {
     const target = document.getElementById("trainingSection");
@@ -846,6 +925,7 @@ window.toggleWorkoutTimer = function () {
 
     if (!isWorkoutTimerRunning) {
         isWorkoutTimerRunning = true;
+        workoutTimerWasStarted = true;
         workoutStartTime = Date.now() - workoutPausedTime;
         clearInterval(workoutTimer);
         workoutTimer = setInterval(() => {
@@ -853,7 +933,8 @@ window.toggleWorkoutTimer = function () {
             timerDisplay.textContent = formatWorkoutTime(elapsed);
         }, 1000);
 
-        toggleBtn.textContent = "PAUSE ⏸";
+        toggleBtn.textContent = "Pause timer";
+        toggleBtn.setAttribute("aria-pressed", "true");
         toggleBtn.classList.add("running");
         playBeastTone("click");
         vibrateBeast(30);
@@ -862,10 +943,12 @@ window.toggleWorkoutTimer = function () {
         clearInterval(workoutTimer);
         workoutPausedTime = Date.now() - workoutStartTime;
 
-        toggleBtn.textContent = "RESUME ▶";
+        toggleBtn.textContent = "Resume timer";
+        toggleBtn.setAttribute("aria-pressed", "false");
         toggleBtn.classList.remove("running");
         playBeastTone("click");
     }
+    persistWorkoutDraft();
 };
 
 /* =========================================================
@@ -889,6 +972,7 @@ window.toggleExerciseSplit = function (index) {
         splitBadge.classList.remove("active");
         splitBadge.textContent = formatSplitTime(exerciseSplitTimes[index]);
         playBeastTone("click");
+        persistWorkoutDraft();
         return;
     }
 
@@ -926,200 +1010,472 @@ window.toggleExerciseSplit = function (index) {
         const totalSecs = (exerciseSplitTimes[index] || 0) + currentRun;
         splitBadge.textContent = formatSplitTime(totalSecs);
     }, 1000);
+    persistWorkoutDraft();
 };
 
-/* Start Workout With Face Framing In Modal */
-window.startWorkout = function (workoutKey) {
+function getActiveWorkoutDraft() {
+    try {
+        const draft = JSON.parse(localStorage.getItem(ACTIVE_WORKOUT_DRAFT_KEY) || "null");
+        if (!draft || !workouts[draft.workout] || !Array.isArray(draft.sets)) return null;
+        return {
+            ...draft,
+            sets: draft.sets.filter(set => set && typeof set === "object" && typeof set.setId === "string"),
+            splitSeconds: draft.splitSeconds && typeof draft.splitSeconds === "object" ? draft.splitSeconds : {}
+        };
+    } catch (_) { return null; }
+}
+
+function clearActiveWorkoutDraft() {
+    clearTimeout(workoutDraftSaveTimer);
+    workoutDraftSaveTimer = null;
+    try { localStorage.removeItem(ACTIVE_WORKOUT_DRAFT_KEY); } catch (_) {}
+}
+
+function hasWorkoutDraftProgress() {
+    if (completedSetIds.size || isWorkoutTimerRunning || workoutPausedTime > 0 || activeSplitIndex !== null) return true;
+    return [...document.querySelectorAll(".telemetry-weight, .telemetry-reps")].some(input => String(input.value || "").trim() !== "");
+}
+
+function persistWorkoutDraft() {
+    if (!activeWorkout || !hasWorkoutDraftProgress()) return;
+    const elapsedMs = isWorkoutTimerRunning && workoutStartTime
+        ? Math.max(0, Date.now() - workoutStartTime)
+        : workoutTimerWasStarted
+            ? workoutPausedTime
+            : Math.max(0, Date.now() - (workoutOpenedAt || Date.now()));
+    const splitSeconds = { ...exerciseSplitTimes };
+    if (activeSplitIndex !== null && splitStartTime) {
+        splitSeconds[activeSplitIndex] = (splitSeconds[activeSplitIndex] || 0) + Math.floor((Date.now() - splitStartTime) / 1000);
+    }
+    const sets = [];
+    document.querySelectorAll(".exercise-item").forEach((item, exerciseIndex) => {
+        item.querySelectorAll(".set-row").forEach((row, setIndex) => {
+            sets.push({
+                setId: `${exerciseIndex}:${setIndex}`,
+                weight: row.querySelector(".telemetry-weight")?.value || "",
+                reps: row.querySelector(".telemetry-reps")?.value || "",
+                completed: Boolean(row.querySelector(".exercise-check")?.checked)
+            });
+        });
+    });
+    const draft = {
+        workout: activeWorkout,
+        mode: activeWorkoutMode,
+        startedAt: workoutOpenedAt || Date.now(),
+        elapsedMs,
+        timerWasStarted: workoutTimerWasStarted,
+        restSeconds: restTimerInterval && restEndsAt ? Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000)) : Math.max(0, restSecondsRemaining),
+        restEndsAt: restTimerInterval ? restEndsAt : 0,
+        restPaused: restTimerPaused,
+        restTotalSeconds: restTimerTotalSeconds,
+        splitSeconds,
+        sets,
+        savedAt: Date.now()
+    };
+    try { localStorage.setItem(ACTIVE_WORKOUT_DRAFT_KEY, JSON.stringify(draft)); } catch (_) {}
+}
+
+function queueWorkoutDraftSave() {
+    clearTimeout(workoutDraftSaveTimer);
+    workoutDraftSaveTimer = setTimeout(persistWorkoutDraft, 150);
+}
+
+window.resumeWorkout = function () {
+    const draft = getActiveWorkoutDraft();
+    if (draft) startWorkout(draft.workout, draft);
+};
+
+/* Set-focused workout logger with resumable local drafts */
+window.startWorkout = function (workoutKey, resumeDraft = null) {
+    let launchStage = "checking workout data";
+    try {
     const workout = workouts[workoutKey];
-    if (!workout) return;
-
-    activeWorkout = workoutKey;
-    completedExercises.clear();
-
+    if (!workout) {
+        console.error("Workout launch failed: unknown workout key.", workoutKey);
+        alert("This workout is unavailable. Refresh the page and try again.");
+        return;
+    }
+    launchStage = "reading saved workout";
+    const savedDraft = resumeDraft || getActiveWorkoutDraft();
+    if (savedDraft && savedDraft.workout !== workoutKey) {
+        if (!confirm("A different workout is saved. Starting this one will replace it.")) return;
+        clearActiveWorkoutDraft();
+        resumeDraft = null;
+    } else if (!resumeDraft && savedDraft?.workout === workoutKey) {
+        resumeDraft = savedDraft;
+    }
     const modal = document.getElementById("workoutModal");
     const title = document.getElementById("modalTitle");
     const owner = document.getElementById("modalOwner");
     const desc = document.getElementById("modalDescription");
     const img = document.getElementById("modalCharacterImage");
     const list = document.getElementById("exerciseList");
+    if (!modal || !title || !owner || !desc || !img || !list) {
+        console.error("Workout launch failed: workout modal elements are missing.");
+        alert("This workout could not open. Refresh the page and try again.");
+        return;
+    }
 
-    if (!modal || !title || !owner || !desc || !img || !list) return;
-
+    launchStage = "preparing workout state";
+    workoutOpener = document.activeElement;
+    activeWorkout = workoutKey;
+    completedSetIds.clear();
+    workoutSetCount = 0;
     title.textContent = workout.title;
     owner.textContent = workout.owner;
     desc.textContent = workout.description;
     img.style.backgroundImage = `url("${workout.image}")`;
+    const positions = { gyomei: ["85% 24%", "180% auto"], akaza: ["center 25%", "cover"], toji: ["center 22%", "cover"], baki: ["center 24%", "cover"], fusion: ["center 30%", "cover"], hybrid: ["center", "cover"] };
+    [img.style.backgroundPosition, img.style.backgroundSize] = positions[workoutKey] || ["center", "cover"];
 
-    // Dynamic face centering based on character artwork
-    if (workoutKey === "gyomei") {
-        img.style.backgroundPosition = "85% 24%";
-        img.style.backgroundSize = "180% auto";
-    } else if (workoutKey === "akaza") {
-        img.style.backgroundPosition = "center 25%";
-        img.style.backgroundSize = "cover";
-    } else if (workoutKey === "toji") {
-        img.style.backgroundPosition = "center 22%";
-        img.style.backgroundSize = "cover";
-    } else if (workoutKey === "baki") {
-        img.style.backgroundPosition = "center 24%";
-        img.style.backgroundSize = "cover";
-    } else if (workoutKey === "fusion") {
-        img.style.backgroundPosition = "center 30%";
-        img.style.backgroundSize = "cover";
-    } else if (workoutKey === "hybrid") {
-        img.style.backgroundPosition = "center";
-        img.style.backgroundSize = "cover";
-    }
-
-    const exercises = trainingMode === "home" ? workout.home : workout.gym;
-
-    // Reset timer variables to stationary 00:00:00
+    const workoutMode = resumeDraft?.mode === "home" ? "home" : trainingMode;
+    const exercises = workoutMode === "home" ? workout.home : workout.gym;
     clearInterval(workoutTimer);
     workoutTimer = null;
     workoutStartTime = null;
-    workoutPausedTime = 0;
+    workoutPausedTime = Math.max(0, Number(resumeDraft?.elapsedMs) || 0);
+    workoutOpenedAt = Date.now() - workoutPausedTime;
+    activeWorkoutMode = workoutMode;
     isWorkoutTimerRunning = false;
-
-    // Reset split times
-    exerciseSplitTimes = {};
+    workoutTimerWasStarted = Boolean(resumeDraft?.timerWasStarted);
+    exerciseSplitTimes = resumeDraft?.splitSeconds && typeof resumeDraft.splitSeconds === "object" ? { ...resumeDraft.splitSeconds } : {};
+    clearInterval(restTimerInterval);
+    restTimerInterval = null;
+    restSecondsRemaining = 0;
+    restTimerTotalSeconds = 60;
+    restEndsAt = 0;
+    restTimerPaused = false;
+    const savedRestEndsAt = Number(resumeDraft?.restEndsAt) || 0;
+    restSecondsRemaining = savedRestEndsAt > 0
+        ? Math.max(0, Math.ceil((savedRestEndsAt - Date.now()) / 1000))
+        : Math.max(0, Number(resumeDraft?.restSeconds) || 0);
+    restTimerTotalSeconds = Math.max(restSecondsRemaining, Number(resumeDraft?.restTotalSeconds) || 60);
+    restTimerPaused = Boolean(resumeDraft?.restPaused) && restSecondsRemaining > 0;
     activeSplitIndex = null;
     clearInterval(splitTimerInterval);
     splitTimerInterval = null;
     splitStartTime = null;
-
     list.innerHTML = `
         <div class="workout-tracker">
             <div class="timer-section">
-                <span class="timer-label">TOTAL WORKOUT DURATION</span>
-                <div class="workout-timer" id="workoutTimer">00:00:00</div>
-                <button type="button" class="timer-toggle-btn" id="timerToggleBtn" onclick="toggleWorkoutTimer()">
-                    START CLOCK ▶
-                </button>
+                <span class="timer-label">Session duration</span>
+                <div class="workout-timer" id="workoutTimer" aria-live="off">00:00:00</div>
+                <button type="button" class="timer-toggle-btn" id="timerToggleBtn" onclick="toggleWorkoutTimer()" aria-pressed="false">Start timer</button>
             </div>
             <div class="exercise-progress-box">
-                <div class="exercise-progress-text" id="exerciseProgress">0 / ${exercises.length} COMPLETED</div>
-                <div class="exercise-progress-track">
+                <div class="exercise-progress-text" id="exerciseProgress">0 of 0 sets complete</div>
+                <div class="exercise-progress-track" role="progressbar" id="exerciseProgressBarTrack" aria-label="Workout sets completed" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
                     <div class="exercise-progress-fill" id="exerciseProgressBar"></div>
                 </div>
             </div>
         </div>
     `;
 
-    exercises.forEach((ex, idx) => {
-        const item = document.createElement("div");
+    launchStage = "building exercise list";
+    exercises.forEach((exercise, exerciseIndex) => {
+        const match = exercise.sets.match(/(\d+)\s+sets?/i);
+        const setCount = match ? Math.max(1, Number(match[1])) : 1;
+        workoutSetCount += setCount;
+        const previousEntry = getWorkoutHistory().find(entry => Array.isArray(entry.telemetry) && entry.telemetry.some(item => item?.name === exercise.name));
+        const previousExercise = previousEntry?.telemetry?.find(item => item?.name === exercise.name);
+        const completedPreviousSets = Array.isArray(previousExercise?.sets)
+            ? previousExercise.sets.filter(set => set?.weight > 0 && set?.reps > 0)
+            : [];
+        const previousSet = completedPreviousSets[completedPreviousSets.length - 1];
+        const legacyPerformance = previousExercise?.weight > 0 && previousExercise?.reps > 0 ? `${previousExercise.weight} kg × ${previousExercise.reps}` : "";
+        const previousText = previousSet ? `${previousSet.weight} kg × ${previousSet.reps}` : legacyPerformance;
+        const item = document.createElement("article");
         item.className = "exercise-item";
         item.innerHTML = `
             <div class="exercise-header-row">
-                <label class="exercise-label">
-                    <input type="checkbox" class="exercise-check" data-index="${idx}">
-                    <span class="custom-checkbox">✓</span>
-                    <div class="exercise-information">
-                        <div class="exercise-name">${idx + 1}. ${ex.name}</div>
-                        <div class="exercise-sets">${ex.sets}</div>
-                    </div>
-                </label>
+                <div class="exercise-information">
+                    <div class="exercise-name">${exerciseIndex + 1}. ${exercise.name}</div>
+                    <div class="exercise-sets">${exercise.sets}</div>
+                    ${previousText ? `<div class="previous-performance">Last time: ${previousText}</div>` : ""}
+                </div>
                 <div class="exercise-actions">
-                    <button type="button" class="split-timer-btn" id="splitBtn_${idx}" onclick="toggleExerciseSplit(${idx})">
-                        SPLIT ▶
-                    </button>
-                    <span class="split-display-badge" id="splitDisplay_${idx}">00:00</span>
-                    <button type="button" class="intel-info-btn" onclick="showExerciseIntel('${ex.name.replace(/'/g, "\\'")}')" aria-label="Exercise details">
-                        ℹ
-                    </button>
+                    <button type="button" class="split-timer-btn" id="splitBtn_${exerciseIndex}" onclick="toggleExerciseSplit(${exerciseIndex})">Start split</button>
+                    <span class="split-display-badge" id="splitDisplay_${exerciseIndex}" aria-label="Exercise elapsed time">00:00</span>
+                    <button type="button" class="intel-info-btn" onclick="showExerciseIntel('${exercise.name.replace(/'/g, "\\'")}')" aria-label="Details for ${exercise.name}">i</button>
                 </div>
             </div>
-            <div class="exercise-telemetry">
-                <input type="number" placeholder="Weight (KG)" class="telemetry-weight" min="0" step="0.5">
-                <input type="number" placeholder="Actual Reps" class="telemetry-reps" min="0" step="1">
+            <div class="set-list" aria-label="Sets for ${exercise.name}">
+                ${Array.from({ length: setCount }, (_, setIndex) => `
+                    <div class="set-row" data-set-index="${exerciseIndex}:${setIndex}">
+                        <span class="set-number">${setIndex + 1}</span>
+                        <input type="number" placeholder="kg" class="telemetry-weight" min="0" step="0.5" inputmode="decimal" aria-label="Weight in kilograms, set ${setIndex + 1}, ${exercise.name}">
+                        <input type="number" placeholder="reps" class="telemetry-reps" min="0" step="1" inputmode="numeric" aria-label="Reps, set ${setIndex + 1}, ${exercise.name}">
+                        <label class="set-complete">
+                            <input type="checkbox" class="exercise-check" data-set-id="${exerciseIndex}:${setIndex}" aria-label="Mark set ${setIndex + 1} complete for ${exercise.name}">
+                            <span class="custom-checkbox" aria-hidden="true">✓</span>
+                        </label>
+                    </div>
+                `).join("")}
             </div>
         `;
-
-        const check = item.querySelector(".exercise-check");
-        check.addEventListener("change", function () {
-            playBeastTone("click");
-            vibrateBeast(40);
-            if (this.checked) {
-                if (activeSplitIndex === idx) {
-                    toggleExerciseSplit(idx);
-                }
-                completedExercises.add(idx);
-                item.classList.add("completed");
-                window.startRest(60);
-            } else {
-                completedExercises.delete(idx);
-                item.classList.remove("completed");
+        const savedSets = new Map((resumeDraft?.sets || []).map(set => [set.setId, set]));
+        item.querySelectorAll(".set-row").forEach((row, setIndex) => {
+            const set = savedSets.get(`${exerciseIndex}:${setIndex}`);
+            if (!set) return;
+            const weightInput = row.querySelector(".telemetry-weight");
+            const repsInput = row.querySelector(".telemetry-reps");
+            const checkbox = row.querySelector(".exercise-check");
+            if (weightInput) weightInput.value = set.weight ?? "";
+            if (repsInput) repsInput.value = set.reps ?? "";
+            if (checkbox && set.completed) {
+                checkbox.checked = true;
+                completedSetIds.add(`${exerciseIndex}:${setIndex}`);
+                row.classList.add("completed");
             }
-            updateExerciseProgress(exercises.length);
         });
-
+        item.querySelectorAll(".telemetry-weight, .telemetry-reps").forEach(input => input.addEventListener("input", queueWorkoutDraftSave));
+        item.querySelectorAll(".exercise-check").forEach(check => {
+            check.addEventListener("change", function () {
+                const row = this.closest(".set-row");
+                if (this.checked) {
+                    completedSetIds.add(this.dataset.setId);
+                    row?.classList.add("completed");
+                    if (activeSplitIndex === exerciseIndex) toggleExerciseSplit(exerciseIndex);
+                    startRest(60);
+                    playBeastTone("click");
+                    vibrateBeast(30);
+                } else {
+                    completedSetIds.delete(this.dataset.setId);
+                    row?.classList.remove("completed");
+                }
+                item.classList.toggle("completed", [...item.querySelectorAll(".exercise-check")].every(input => input.checked));
+                updateExerciseProgress(workoutSetCount);
+                persistWorkoutDraft();
+            });
+        });
         list.appendChild(item);
+        const splitDisplay = document.getElementById(`splitDisplay_${exerciseIndex}`);
+        if (splitDisplay) splitDisplay.textContent = formatSplitTime(exerciseSplitTimes[exerciseIndex] || 0);
+        const exerciseChecks = Array.from(item.querySelectorAll(".exercise-check"));
+        item.classList.toggle("completed", exerciseChecks.length > 0 && exerciseChecks.every(input => input.checked));
     });
 
     modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("modal-open");
-    updateExerciseProgress(exercises.length);
+    updateExerciseProgress(workoutSetCount);
+    if (resumeDraft) {
+        const timerDisplay = document.getElementById("workoutTimer");
+        const timerButton = document.getElementById("timerToggleBtn");
+        if (timerDisplay) timerDisplay.textContent = formatWorkoutTime(workoutPausedTime / 1000);
+        if (timerButton && workoutPausedTime > 0) timerButton.textContent = "Resume timer";
+        if (restSecondsRemaining > 0 && restTimerPaused) {
+            const restPanel = document.getElementById("restTimerPanel");
+            if (restPanel) restPanel.hidden = false;
+            updateRestTimerUI();
+            updateRestNextSet();
+        } else if (restSecondsRemaining > 0) startRest(restSecondsRemaining);
+        persistWorkoutDraft();
+    }
+    launchStage = "opening workout sheet";
+    modal.querySelector(".modal-close")?.focus();
+    } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        console.error("Workout launch failed during " + launchStage + ":", error);
+        activeWorkout = null;
+        clearInterval(workoutTimer);
+        clearInterval(splitTimerInterval);
+        clearInterval(restTimerInterval);
+        workoutTimer = null;
+        splitTimerInterval = null;
+        restTimerInterval = null;
+        workoutStartTime = null;
+        workoutOpenedAt = null;
+        isWorkoutTimerRunning = false;
+        workoutSetCount = 0;
+        completedSetIds.clear();
+        document.body.classList.remove("modal-open");
+        const failedModal = document.getElementById("workoutModal");
+        failedModal?.classList.remove("show");
+        failedModal?.setAttribute("aria-hidden", "true");
+        alert("Workout launch failed during " + launchStage + ": " + detail);
+    }
 };
 
-function updateExerciseProgress(total) {
+function updateExerciseProgress(totalSets) {
     const text = document.getElementById("exerciseProgress");
     const bar = document.getElementById("exerciseProgressBar");
-    const count = completedExercises.size;
-    if (text) text.textContent = `${count} / ${total} COMPLETED`;
-    if (bar && total > 0) bar.style.width = `${(count / total) * 100}%`;
+    const track = document.getElementById("exerciseProgressBarTrack");
+    const count = completedSetIds.size;
+    if (text) text.textContent = `${count} of ${totalSets} sets complete`;
+    if (bar && totalSets > 0) bar.style.width = `${(count / totalSets) * 100}%`;
+    if (track) {
+        track.setAttribute("aria-valuemax", String(totalSets));
+        track.setAttribute("aria-valuenow", String(count));
+    }
 }
-
-window.closeWorkout = function () {
+window.closeWorkout = function (completed = false) {
+    if (!completed && activeWorkout) {
+        if (hasWorkoutDraftProgress()) {
+            persistWorkoutDraft();
+            if (!confirm("Save this workout and exit? You can resume it later.")) return;
+        } else {
+            clearActiveWorkoutDraft();
+        }
+    }
     const modal = document.getElementById("workoutModal");
-    if (modal) modal.classList.remove("show");
+    if (modal) {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+    }
     document.body.classList.remove("modal-open");
-    
     clearInterval(workoutTimer);
+    clearInterval(splitTimerInterval);
     workoutTimer = null;
+    splitTimerInterval = null;
     workoutStartTime = null;
+    workoutOpenedAt = null;
     workoutPausedTime = 0;
     isWorkoutTimerRunning = false;
-
-    clearInterval(splitTimerInterval);
-    splitTimerInterval = null;
+    workoutTimerWasStarted = false;
     activeSplitIndex = null;
     splitStartTime = null;
     exerciseSplitTimes = {};
-
     activeWorkout = null;
-    window.skipRest();
+    completedSetIds.clear();
+    workoutSetCount = 0;
+    skipRest();
+    if (workoutOpener?.isConnected) workoutOpener.focus();
+    workoutOpener = null;
+    if (!completed) renderTodayOverview();
 };
-
+window.discardWorkout = function () {
+    if (!activeWorkout || !confirm("Discard this workout and all unsaved set entries?")) return;
+    clearActiveWorkoutDraft();
+    closeWorkout(true);
+    renderTodayOverview();
+};
 /* Rest Timer */
 window.startRest = function (seconds = 60) {
     const panel = document.getElementById("restTimerPanel");
-    const display = document.getElementById("restTimerDisplay");
-    if (!panel || !display) return;
-
+    if (!panel) return;
     clearInterval(restTimerInterval);
-    restSecondsRemaining = seconds;
+    restTimerInterval = null;
+    restSecondsRemaining = Math.max(1, Math.round(Number(seconds) || 60));
+    restTimerTotalSeconds = restSecondsRemaining;
+    restEndsAt = Date.now() + restSecondsRemaining * 1000;
+    restTimerPaused = false;
     panel.hidden = false;
-    display.textContent = formatRestTime(restSecondsRemaining);
+    updateRestTimerUI();
+    updateRestNextSet();
     playBeastTone("rest");
+    restTimerInterval = setInterval(tickRestTimer, 1000);
+    if (activeWorkout) persistWorkoutDraft();
+};
 
-    restTimerInterval = setInterval(() => {
-        restSecondsRemaining -= 1;
-        display.textContent = formatRestTime(Math.max(0, restSecondsRemaining));
-        if ([10, 5, 4, 3, 2, 1].includes(restSecondsRemaining)) {
-            playBeastTone(restSecondsRemaining <= 5 ? "warning" : "rest");
+function updateRestTimerUI() {
+    const display = document.getElementById("restTimerDisplay");
+    const pauseButton = document.getElementById("restPauseButton");
+    const ring = document.getElementById("restTimerRing");
+    if (display) display.textContent = restSecondsRemaining > 0 ? formatRestTime(restSecondsRemaining) : "READY";
+    if (pauseButton) pauseButton.textContent = restSecondsRemaining <= 0 ? "Again" : restTimerPaused ? "Resume" : "Pause";
+    if (pauseButton) pauseButton.setAttribute("aria-pressed", String(restTimerPaused));
+    if (ring) {
+        const circumference = 144.5;
+        const remaining = restTimerTotalSeconds > 0 ? restSecondsRemaining / restTimerTotalSeconds : 0;
+        ring.style.strokeDashoffset = String(circumference * (1 - Math.max(0, Math.min(1, remaining))));
+    }
+}
+
+function updateRestNextSet() {
+    const label = document.getElementById("restNextExercise");
+    if (!label) return;
+    const nextRow = [...document.querySelectorAll(".exercise-item")].flatMap(item =>
+        [...item.querySelectorAll(".set-row")].map(row => ({ item, row }))
+    ).find(({ row }) => !row.querySelector(".exercise-check")?.checked);
+    if (!nextRow) {
+        label.textContent = "All sets complete · finish when ready.";
+        return;
+    }
+    const exercise = nextRow.item.querySelector(".exercise-name")?.textContent.replace(/^\d+\.\s*/, "").trim() || "Next set";
+    const setNumber = Number(nextRow.row.querySelector(".set-number")?.textContent) || 1;
+    label.textContent = "Next: " + exercise + " · Set " + setNumber;
+}
+
+function tickRestTimer() {
+    restSecondsRemaining = Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000));
+    updateRestTimerUI();
+    if ([10, 5, 4, 3, 2, 1].includes(restSecondsRemaining)) {
+        playBeastTone(restSecondsRemaining <= 5 ? "warning" : "rest");
+    }
+    if (restSecondsRemaining <= 0) {
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+        restEndsAt = 0;
+        restTimerPaused = false;
+        const label = document.getElementById("restNextExercise");
+        if (label) label.textContent = "Rest complete · ready when you are.";
+        playBeastTone("victory");
+        vibrateBeast([100, 70, 100]);
+    }
+    if (activeWorkout && restSecondsRemaining <= 0) persistWorkoutDraft();
+}
+
+window.toggleRestTimer = function () {
+    if (restTimerInterval) {
+        restSecondsRemaining = Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000));
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+        restEndsAt = 0;
+        restTimerPaused = true;
+        updateRestTimerUI();
+        if (activeWorkout) persistWorkoutDraft();
+        return;
+    }
+    if (restSecondsRemaining <= 0) {
+        startRest(60);
+        return;
+    }
+    restTimerPaused = false;
+    restEndsAt = Date.now() + restSecondsRemaining * 1000;
+    restTimerInterval = setInterval(tickRestTimer, 1000);
+    updateRestTimerUI();
+};
+
+window.adjustRest = function (seconds) {
+    const panel = document.getElementById("restTimerPanel");
+    const adjustment = Number(seconds);
+    if (!panel || panel.hidden || !Number.isFinite(adjustment)) return;
+    const wasPaused = restTimerPaused;
+    if (restTimerInterval) restSecondsRemaining = Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000));
+    restSecondsRemaining = Math.max(0, restSecondsRemaining + Math.round(adjustment));
+    restTimerTotalSeconds = Math.max(restSecondsRemaining, restTimerTotalSeconds + Math.max(0, adjustment));
+    clearInterval(restTimerInterval);
+    restTimerInterval = null;
+    if (restSecondsRemaining > 0) {
+        restTimerPaused = wasPaused;
+        if (restTimerPaused) {
+            restEndsAt = 0;
+        } else {
+            restEndsAt = Date.now() + restSecondsRemaining * 1000;
+            restTimerInterval = setInterval(tickRestTimer, 1000);
         }
-        if (restSecondsRemaining <= 0) {
-            clearInterval(restTimerInterval);
-            playBeastTone("victory");
-            vibrateBeast([100, 70, 100]);
-            display.textContent = "REST COMPLETE";
-        }
-    }, 1000);
+    } else {
+        restTimerPaused = false;
+        restEndsAt = 0;
+        const label = document.getElementById("restNextExercise");
+        if (label) label.textContent = "Rest complete · ready when you are.";
+    }
+    updateRestTimerUI();
+    if (activeWorkout) persistWorkoutDraft();
 };
 
 window.skipRest = function () {
     clearInterval(restTimerInterval);
+    restTimerInterval = null;
+    restSecondsRemaining = 0;
+    restTimerTotalSeconds = 60;
+    restEndsAt = 0;
+    restTimerPaused = false;
     const panel = document.getElementById("restTimerPanel");
     if (panel) panel.hidden = true;
+    updateRestTimerUI();
+    if (activeWorkout) persistWorkoutDraft();
 };
 
 /* Exercise Intel Viewer */
@@ -1144,6 +1500,7 @@ window.showExerciseIntel = function (exerciseName) {
 
     if (!modal || !titleEl) return;
 
+    intelOpener = document.activeElement;
     titleEl.textContent = exerciseName.toUpperCase();
     targetsEl.textContent = rawIntel.targets;
     dailyEl.textContent = rawIntel.dailyLife;
@@ -1154,84 +1511,70 @@ window.showExerciseIntel = function (exerciseName) {
         .join("");
 
     modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    modal.querySelector(".intel-close")?.focus();
     playBeastTone("click");
     vibrateBeast(35);
 };
 
 window.closeExerciseIntel = function () {
     const modal = document.getElementById("exerciseIntelModal");
-    if (modal) modal.classList.remove("show");
+    if (modal) {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+    }
+    if (intelOpener?.isConnected) intelOpener.focus();
+    intelOpener = null;
 };
 
 /* Complete Workout with Progressive Overload Telemetry & Split Time */
 window.completeWorkout = function () {
     if (!activeWorkout) return;
-
-    const total = document.querySelectorAll(".exercise-check").length;
-    const completed = completedExercises.size;
-
-    if (total > 0 && completed < total) {
-        const confirmDone = confirm(`⚠️ ${total - completed} exercise(s) are incomplete. Complete anyway?`);
-        if (!confirmDone) return;
-    }
-
-    const duration = isWorkoutTimerRunning 
-        ? Math.floor((Date.now() - workoutStartTime) / 1000) 
-        : Math.floor(workoutPausedTime / 1000);
-
-    const workoutKey = activeWorkout;
-
-    // Harvest Weight, Reps, and Split telemetry
+    const incomplete = workoutSetCount - completedSetIds.size;
+    if (incomplete > 0 && !confirm(`${incomplete} set(s) are not marked complete. Finish and save this session anyway?`)) return;
+    const duration = isWorkoutTimerRunning
+        ? Math.floor((Date.now() - workoutStartTime) / 1000)
+        : workoutTimerWasStarted
+            ? Math.floor(workoutPausedTime / 1000)
+            : Math.floor((Date.now() - workoutOpenedAt) / 1000);
     const telemetryData = [];
-    let sessionTonnage = 0;
-    document.querySelectorAll(".exercise-item").forEach((item, idx) => {
+    let sessionVolume = 0;
+    if (activeSplitIndex !== null && splitStartTime) {
+        exerciseSplitTimes[activeSplitIndex] = (exerciseSplitTimes[activeSplitIndex] || 0) + Math.floor((Date.now() - splitStartTime) / 1000);
+        clearInterval(splitTimerInterval);
+        activeSplitIndex = null;
+        splitStartTime = null;
+        splitTimerInterval = null;
+    }
+    document.querySelectorAll(".exercise-item").forEach((item, exerciseIndex) => {
         const name = item.querySelector(".exercise-name")?.textContent.replace(/^\d+\.\s*/, "").trim();
-        const weight = parseFloat(item.querySelector(".telemetry-weight")?.value) || 0;
-        const reps = parseInt(item.querySelector(".telemetry-reps")?.value, 10) || 0;
-        const splitSecs = exerciseSplitTimes[idx] || 0;
-
-        if (weight > 0 && reps > 0) {
-            sessionTonnage += (weight * reps);
-        }
-        telemetryData.push({ name, weight, reps, splitSeconds: splitSecs });
+        const sets = [...item.querySelectorAll(".set-row")].map((row, setIndex) => {
+            const weight = Number(row.querySelector(".telemetry-weight")?.value) || 0;
+            const reps = Number(row.querySelector(".telemetry-reps")?.value) || 0;
+            const completed = Boolean(row.querySelector(".exercise-check")?.checked);
+            if (completed && weight > 0 && reps > 0) sessionVolume += weight * reps;
+            return { set: setIndex + 1, weight, reps, completed };
+        });
+        telemetryData.push({ name, sets, splitSeconds: exerciseSplitTimes[exerciseIndex] || 0 });
     });
-
+    const workoutKey = activeWorkout;
     beastProgress.workoutsCompleted = (Number(beastProgress.workoutsCompleted) || 0) + 1;
-    if (typeof beastProgress[workoutKey] === "number") {
-        beastProgress[workoutKey] = Math.min(100, beastProgress[workoutKey] + 10);
-    }
+    if (typeof beastProgress[workoutKey] === "number") beastProgress[workoutKey] = Math.min(100, beastProgress[workoutKey] + 10);
     beastProgress.level = Math.floor(beastProgress.workoutsCompleted / 5) + 1;
-
     updateStreak();
-
-    // Store rich workout telemetry
     const history = getWorkoutHistory();
-    history.unshift({
-        id: Date.now(),
-        workout: workoutKey,
-        date: new Date().toISOString(),
-        duration,
-        tonnage: sessionTonnage,
-        telemetry: telemetryData
-    });
+    history.unshift({ id: Date.now(), workout: workoutKey, date: new Date().toISOString(), duration, tonnage: sessionVolume, telemetry: telemetryData });
     saveWorkoutHistory(history);
-
-    try {
-        localStorage.setItem("beastProgress", JSON.stringify(beastProgress));
-    } catch (e) {
-        console.error("Storage error:", e);
-    }
-
+    try { localStorage.setItem("beastProgress", JSON.stringify(beastProgress)); }
+    catch (error) { console.error("Storage error:", error); }
     playBeastTone("victory");
     vibrateBeast([80, 50, 160]);
-
-    closeWorkout();
+    clearActiveWorkoutDraft();
+    closeWorkout(true);
     updateAllUI();
     updateAchievements();
-
-    setTimeout(() => alert("⚔️ WORKOUT COMPLETED! Progressive Overload Telemetry Saved."), 100);
+    setTimeout(() => alert("Workout complete. Your sets and training volume have been saved."), 100);
 };
-
 function updateStreak() {
     const today = dateKey(new Date());
     const lastDate = beastProgress.lastWorkoutDate;
@@ -1249,7 +1592,7 @@ function updateStreak() {
 function getWorkoutHistory() {
     try {
         const d = JSON.parse(localStorage.getItem("beastWorkoutHistory"));
-        return Array.isArray(d) ? d : [];
+        return Array.isArray(d) ? d.filter(entry => entry && typeof entry === "object" && !Array.isArray(entry)) : [];
     } catch (_) { return []; }
 }
 
@@ -1266,6 +1609,88 @@ function getWeightHistory() {
     } catch (_) { return []; }
 }
 
+window.setWeightTrendRange = function (days) {
+    const allowed = [7, 30, 90, 365];
+    const nextRange = Number(days);
+    if (!allowed.includes(nextRange)) return;
+    weightTrendRangeDays = nextRange;
+    document.querySelectorAll(".trend-range-button").forEach(button => {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.range) === nextRange));
+    });
+    renderWeightTrend();
+};
+
+function renderWeightTrend() {
+    const chart = document.getElementById("weightTrendChart");
+    const summary = document.getElementById("weightTrendSummary");
+    if (!chart) return;
+    const end = new Date();
+    const start = new Date(end.getFullYear(), end.getMonth(), end.getDate() - weightTrendRangeDays + 1);
+    const startKey = dateKey(start);
+    const endKey = dateKey(end);
+    const data = getWeightHistory()
+        .map(entry => ({ weight: Number(entry.weight), date: new Date(entry.date) }))
+        .filter(entry => Number.isFinite(entry.weight) && entry.weight > 0 && !Number.isNaN(entry.date.getTime()))
+        .filter(entry => dateKey(entry.date) >= startKey && dateKey(entry.date) <= endKey)
+        .sort((a, b) => a.date - b.date);
+
+    if (!data.length) {
+        chart.innerHTML = '<div class="chart-empty"><strong>No weigh-ins in this range</strong><span>Try a longer range or log a new measurement.</span></div>';
+        if (summary) summary.textContent = "Only your logged measurements appear here.";
+        return;
+    }
+    if (data.length === 1 && summary) summary.textContent = "One measurement logged. Add another in this range to compare.";
+    if (data.length > 1 && summary) {
+        const change = data[data.length - 1].weight - data[0].weight;
+        const signed = change > 0 ? "+" : "";
+        summary.textContent = "Change across logged measurements: " + signed + change.toFixed(1) + " kg.";
+    }
+
+    const width = 720;
+    const plotLeft = 54;
+    const plotRight = 696;
+    const plotTop = 20;
+    const plotBottom = 156;
+    const weights = data.map(entry => entry.weight);
+    let min = Math.min(...weights);
+    let max = Math.max(...weights);
+    if (min === max) { min -= 0.5; max += 0.5; }
+    const padding = (max - min) * 0.08;
+    min -= padding;
+    max += padding;
+    const points = data.map((entry, index) => {
+        const x = data.length === 1 ? (plotLeft + plotRight) / 2 : plotLeft + index / (data.length - 1) * (plotRight - plotLeft);
+        const y = plotBottom - (entry.weight - min) / (max - min) * (plotBottom - plotTop);
+        return { x, y, entry };
+    });
+    const pointString = points.map(point => point.x.toFixed(1) + "," + point.y.toFixed(1)).join(" ");
+    const areaPath = points.length > 1
+        ? "M " + pointString.replace(/ /g, " L ") + " L " + plotRight + "," + plotBottom + " L " + plotLeft + "," + plotBottom + " Z"
+        : "";
+    const middle = (min + max) / 2;
+    const labels = [max, middle, min];
+    const yPositions = [plotTop, (plotTop + plotBottom) / 2, plotBottom];
+    const grid = labels.map((value, index) =>
+        '<line class="trend-gridline" x1="' + plotLeft + '" y1="' + yPositions[index] + '" x2="' + plotRight + '" y2="' + yPositions[index] + '"></line>'
+    ).join("");
+    const circles = points.map(point =>
+        '<circle class="trend-point" cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="4"><title>' +
+        point.entry.weight.toFixed(1) + ' kg, ' + escapeHtml(point.entry.date.toLocaleDateString()) + '</title></circle>'
+    ).join("");
+    const dateOptions = { month: "short", day: "numeric" };
+    const firstLabel = escapeHtml(data[0].date.toLocaleDateString(undefined, dateOptions));
+    const lastLabel = escapeHtml(data[data.length - 1].date.toLocaleDateString(undefined, dateOptions));
+    chart.innerHTML = '<div class="trend-plot"><div class="trend-y-axis" aria-hidden="true"><span>' + max.toFixed(1) +
+        '</span><span>' + middle.toFixed(1) + '</span><span>' + min.toFixed(1) + '</span></div>' +
+        '<svg viewBox="0 0 ' + width + ' 170" preserveAspectRatio="none" role="img" aria-label="Bodyweight trend from ' +
+        firstLabel + ' to ' + lastLabel + '">' +
+        '<title>Logged bodyweight measurements</title><defs><linearGradient id="trendArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff8178" stop-opacity=".25"></stop><stop offset="100%" stop-color="#ff8178" stop-opacity="0"></stop></linearGradient></defs>' +
+        grid + (areaPath ? '<path class="trend-area" d="' + areaPath + '"></path>' : "") +
+        (points.length > 1 ? '<polyline class="trend-line" points="' + pointString + '"></polyline>' : "") +
+        circles + '</svg></div><div class="trend-date-axis" aria-hidden="true"><span>' + firstLabel + '</span><span>' +
+        lastLabel + '</span></div>';
+}
+
 window.saveWeightEntry = function () {
     const input = document.getElementById("weightLogInput");
     const val = Number(input?.value);
@@ -1279,8 +1704,155 @@ window.saveWeightEntry = function () {
     if (input) input.value = "";
     playBeastTone("click");
     renderUltimateDashboard();
+    renderHomeSnapshot();
+    renderWeightTrend();
 };
 
+const NUTRITION_HISTORY_KEY = "beastNutritionHistory";
+const NUTRITION_GOALS_KEY = "beastNutritionGoals";
+
+function getNutritionHistory() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(NUTRITION_HISTORY_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+    } catch (_) { return []; }
+}
+
+function getNutritionGoals() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(NUTRITION_GOALS_KEY) || "null");
+        return saved && typeof saved === "object" ? saved : null;
+    } catch (_) { return null; }
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
+
+function populateNutritionGoals() {
+    const goals = getNutritionGoals();
+    if (!goals) return;
+    const fields = { goalCalories: "calories", goalProtein: "protein", goalCarbs: "carbs", goalFat: "fat", goalFiber: "fiber" };
+    Object.entries(fields).forEach(([id, key]) => {
+        const field = document.getElementById(id);
+        if (field && goals[key] != null) field.value = goals[key];
+    });
+}
+
+window.saveNutritionGoals = function (event) {
+    event?.preventDefault();
+    const form = document.getElementById("nutritionGoalsForm");
+    if (form && !form.reportValidity()) return;
+    const goals = {
+        calories: Number(document.getElementById("goalCalories")?.value),
+        protein: Number(document.getElementById("goalProtein")?.value),
+        carbs: Number(document.getElementById("goalCarbs")?.value) || 0,
+        fat: Number(document.getElementById("goalFat")?.value) || 0,
+        fiber: Number(document.getElementById("goalFiber")?.value) || 0
+    };
+    if (!Number.isFinite(goals.calories) || goals.calories <= 0 || !Number.isFinite(goals.protein) || goals.protein < 0) {
+        alert("Enter valid calorie and protein targets.");
+        return;
+    }
+    try {
+        localStorage.setItem(NUTRITION_GOALS_KEY, JSON.stringify(goals));
+        renderNutrition();
+        playBeastTone("click");
+    } catch (_) { alert("Could not save nutrition targets on this device."); }
+};
+
+window.addFoodEntry = function (event) {
+    event?.preventDefault();
+    const form = document.getElementById("foodLogForm");
+    if (form && !form.reportValidity()) return;
+    const name = document.getElementById("foodName")?.value.trim();
+    if (!name) return;
+    const entry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        type: "food",
+        name,
+        calories: Number(document.getElementById("foodCalories")?.value),
+        protein: Number(document.getElementById("foodProtein")?.value),
+        carbs: Number(document.getElementById("foodCarbs")?.value),
+        fat: Number(document.getElementById("foodFat")?.value),
+        fiber: Number(document.getElementById("foodFiber")?.value),
+        date: new Date().toISOString()
+    };
+    if (Object.values(entry).some(value => typeof value === "number" && (!Number.isFinite(value) || value < 0))) {
+        alert("Nutrition values must be zero or greater.");
+        return;
+    }
+    try {
+        const history = getNutritionHistory();
+        history.unshift(entry);
+        localStorage.setItem(NUTRITION_HISTORY_KEY, JSON.stringify(history.slice(0, 1000)));
+        form.reset();
+        document.getElementById("foodFiber").value = "0";
+        renderNutrition();
+        playBeastTone("click");
+    } catch (_) { alert("Could not save this food entry on this device."); }
+};
+
+window.addWater = function (milliliters) {
+    const amount = Number(milliliters);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    try {
+        const history = getNutritionHistory();
+        history.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, type: "water", milliliters: amount, date: new Date().toISOString() });
+        localStorage.setItem(NUTRITION_HISTORY_KEY, JSON.stringify(history.slice(0, 1000)));
+        renderNutrition();
+        playBeastTone("click");
+    } catch (_) { alert("Could not save water on this device."); }
+};
+
+window.removeFoodEntry = function (entryId) {
+    const history = getNutritionHistory().filter(entry => entry.id !== entryId);
+    try {
+        localStorage.setItem(NUTRITION_HISTORY_KEY, JSON.stringify(history));
+        renderNutrition();
+    } catch (_) { alert("Could not update the food log."); }
+};
+
+function renderNutrition() {
+    const summary = document.getElementById("nutritionSummary");
+    const log = document.getElementById("foodLogList");
+    if (!summary || !log) return;
+    const today = dateKey(new Date());
+    const entries = getNutritionHistory().filter(entry => dateKey(entry.date) === today);
+    const goals = getNutritionGoals();
+    const foods = entries.filter(entry => entry.type === "food");
+    const totals = foods.reduce((total, entry) => {
+        ["calories", "protein", "carbs", "fat", "fiber"].forEach(key => total[key] += Number(entry[key]) || 0);
+        return total;
+    }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+    const water = entries.filter(entry => entry.type === "water").reduce((sum, entry) => sum + (Number(entry.milliliters) || 0), 0);
+    const dateLabel = document.getElementById("nutritionDateLabel");
+    if (dateLabel) dateLabel.textContent = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date());
+    const waterLabel = document.getElementById("waterTotal");
+    if (waterLabel) waterLabel.textContent = `${water.toLocaleString()} ml`;
+
+    const metrics = [
+        ["Calories", "calories", "kcal"], ["Protein", "protein", "g"], ["Carbs", "carbs", "g"], ["Fat", "fat", "g"], ["Fiber", "fiber", "g"]
+    ];
+    summary.innerHTML = metrics.map(([label, key, unit]) => {
+        const target = Number(goals?.[key]) || 0;
+        const consumed = totals[key];
+        const ratio = target > 0 ? Math.min(100, consumed / target * 100) : 0;
+        const remaining = target > 0 ? Math.max(0, target - consumed) : null;
+        return `<article class="nutrition-metric">
+            <div class="nutrition-metric-heading"><h3>${label}</h3><span>${target ? `${target.toLocaleString()} ${unit} target` : "Set target"}</span></div>
+            <div class="nutrition-progress" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="${target || 0}" aria-valuenow="${Math.round(consumed)}"><span style="width:${ratio}%"></span></div>
+            <div class="nutrition-metric-values"><span>Consumed <b>${Number(consumed.toFixed(1)).toLocaleString()} ${unit}</b></span><span>${target ? `Remaining <b>${Number(remaining.toFixed(1)).toLocaleString()} ${unit}</b>` : "No target set"}</span></div>
+        </article>`;
+    }).join("");
+
+    log.innerHTML = foods.length ? foods.map(entry => `
+        <article class="food-log-entry">
+            <div><strong>${escapeHtml(entry.name)}</strong><span>${new Date(entry.date).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })} · ${Math.round(entry.calories)} kcal · ${Number(entry.protein).toFixed(1)} g protein</span></div>
+            <button type="button" class="remove-food-entry" onclick="removeFoodEntry('${escapeHtml(entry.id)}')" aria-label="Remove ${escapeHtml(entry.name)} from today's food log">×</button>
+        </article>`).join("") : '<p class="nutrition-empty">Nothing logged yet. Add a meal above to start today’s log.</p>';
+    renderHomeSnapshot();
+}
 function getCurrentBeastRank(level) {
     let current = beastRanks[0];
     beastRanks.forEach(r => {
@@ -1301,6 +1873,15 @@ function updateAllUI() {
     const currentLevelWorkouts = workouts % 5;
     const levelPercentage = (currentLevelWorkouts / 5) * 100;
     const rank = getCurrentBeastRank(level);
+    const ringProgress = {
+        sessions: (currentLevelWorkouts / 5) * 100,
+        streak: Math.min(100, ((Number(beastProgress.streak) || 0) / 7) * 100),
+        tier: Math.min(100, (level / 50) * 100)
+    };
+    Object.entries(ringProgress).forEach(([name, value]) => {
+        const ring = document.querySelector(`[data-ring="${name}"] .activity-ring`);
+        if (ring) ring.style.setProperty('--ring-value', `${value}%`);
+    });
 
     const elWorkouts = document.getElementById("workoutsCompleted");
     const elStreak = document.getElementById("currentStreak");
@@ -1376,6 +1957,9 @@ function updateAllUI() {
 
     renderWorkoutHistory();
     renderWorkoutCalendar();
+    renderTodayOverview();
+    renderHomeSnapshot();
+    renderWeightTrend();
     renderUltimateDashboard();
 }
 
@@ -1454,10 +2038,9 @@ function renderUltimateDashboard() {
 
     const counts = {};
     history.forEach(x => counts[x.workout] = (counts[x.workout] || 0) + 1);
-    const favorite = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "NONE";
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const completedToday = history.some(x => x.date.slice(0, 10) === todayStr);
+    const todayStr = dateKey(new Date());
+    const completedToday = history.some(x => dateKey(x.date) === todayStr);
 
     const latestW = weights[0]?.weight;
     const prevW = weights[1]?.weight;
@@ -1554,6 +2137,9 @@ window.factoryResetApp = function () {
     localStorage.removeItem("beastProgress");
     localStorage.removeItem("beastWorkoutHistory");
     localStorage.removeItem("beastWeightHistory");
+    localStorage.removeItem(NUTRITION_HISTORY_KEY);
+    localStorage.removeItem(NUTRITION_GOALS_KEY);
+    localStorage.removeItem(ACTIVE_WORKOUT_DRAFT_KEY);
     localStorage.removeItem("beastAchievementsUnlocked");
 
     beastProgress = { ...defaultProgress };
@@ -1571,6 +2157,9 @@ window.exportBeastData = function () {
         beastSettings: JSON.parse(localStorage.getItem("beastSettings") || "{}"),
         beastWorkoutHistory: getWorkoutHistory(),
         beastWeightHistory: getWeightHistory(),
+        beastNutritionGoals: getNutritionGoals(),
+        beastNutritionHistory: getNutritionHistory(),
+        beastActiveWorkoutDraft: getActiveWorkoutDraft(),
         beastAchievementsUnlocked: JSON.parse(localStorage.getItem("beastAchievementsUnlocked") || "[]")
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -1593,6 +2182,13 @@ window.importBeastData = function (e) {
             if (d.beastSettings) localStorage.setItem("beastSettings", JSON.stringify(d.beastSettings));
             if (d.beastWorkoutHistory) localStorage.setItem("beastWorkoutHistory", JSON.stringify(d.beastWorkoutHistory));
             if (d.beastWeightHistory) localStorage.setItem("beastWeightHistory", JSON.stringify(d.beastWeightHistory));
+            if (d.beastNutritionGoals) localStorage.setItem(NUTRITION_GOALS_KEY, JSON.stringify(d.beastNutritionGoals));
+            if (d.beastNutritionHistory) localStorage.setItem(NUTRITION_HISTORY_KEY, JSON.stringify(d.beastNutritionHistory));
+            if (Object.prototype.hasOwnProperty.call(d, "beastActiveWorkoutDraft")) {
+                const draft = d.beastActiveWorkoutDraft;
+                if (draft && workouts[draft.workout] && Array.isArray(draft.sets)) localStorage.setItem(ACTIVE_WORKOUT_DRAFT_KEY, JSON.stringify(draft));
+                else localStorage.removeItem(ACTIVE_WORKOUT_DRAFT_KEY);
+            }
             if (d.beastAchievementsUnlocked) localStorage.setItem("beastAchievementsUnlocked", JSON.stringify(d.beastAchievementsUnlocked));
             alert("⚔️ DATA RESTORED! Refreshing...");
             location.reload();
@@ -1603,16 +2199,49 @@ window.importBeastData = function (e) {
     reader.readAsText(file);
 };
 
-document.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-        closeExerciseIntel();
-        closeWorkout();
+document.addEventListener("keydown", event => {
+    const dialog = document.querySelector(".intel-modal.show .intel-content") || document.querySelector(".workout-modal.show .modal-content");
+    if (event.key === "Escape") {
+        if (document.getElementById("exerciseIntelModal")?.classList.contains("show")) closeExerciseIntel();
+        else closeWorkout();
+        return;
+    }
+    if (event.key !== "Tab" || !dialog) return;
+    const focusable = [...dialog.querySelectorAll("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])")]
+        .filter(element => !element.closest("[hidden]") && element.getClientRects().length);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
     }
 });
-
+window.addEventListener("pagehide", () => {
+    if (activeWorkout && hasWorkoutDraftProgress()) persistWorkoutDraft();
+});
 document.addEventListener("DOMContentLoaded", () => {
-    new BeastParticleCanvas();
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+        const revealItems = document.querySelectorAll(".section-header, .workout-card, .rest-section, .stat-card, .progress-card, .achievement-card, .rank-node, .ultimate-card, .ultimate-panel, .history-item");
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("is-visible");
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: "0px 0px -24px 0px" });
+        revealItems.forEach(item => {
+            item.classList.add("ios-reveal");
+            revealObserver.observe(item);
+        });
+    }
     setTrainingMode(trainingMode);
+    populateNutritionGoals();
+    renderNutrition();
 
     try {
         const s = JSON.parse(localStorage.getItem("beastSettings")) || {};
@@ -1627,9 +2256,20 @@ document.addEventListener("DOMContentLoaded", () => {
             startWorkout(card.dataset.workout);
         });
     });
+    document.querySelectorAll(".start-button[data-workout-key]").forEach(button => {
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            window.startWorkout(button.dataset.workoutKey);
+        });
+    });
 
     updateAllUI();
     updateAchievements();
+    const initialView = new URLSearchParams(window.location.search).get("view");
+    if (["workout", "nutrition", "progress", "settings"].includes(initialView)) showPage(initialView);
+    else if (window.location.hash === "#workoutSection") showPage("workout");
+    else if (window.location.hash === "#progressPage") showPage("progress");
 });
 
 // PWA Service Worker Registration

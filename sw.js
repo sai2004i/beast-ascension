@@ -3,18 +3,14 @@
    Dev-Safe Live Reload Engine + Zero-Fail Caching
 ========================================================= */
 
-const CACHE_VERSION = "beast-v8-enterprise";
+const CACHE_VERSION = "beast-v14-workout-launch-nodelist";
 const PRECACHE_ASSETS = [
     "./",
     "./index.html",
     "./style.css",
+    "./fitness-os.css",
     "./script.js",
     "./manifest.json",
-    "./assets/akaza.png",
-    "./assets/baki.png",
-    "./assets/toji.png",
-    "./assets/hybrid.png",
-    "./assets/day5.png",
     "./assets/icon-192.png",
     "./assets/icon-512.png"
 ];

@@ -1,0 +1,145 @@
+/* Home dashboard: one quiet surface, with all values derived from saved user data. */
+.skip-link { position: fixed; z-index: 1000; top: -60px; left: 16px; padding: 10px 14px; border: 1px solid var(--glass-edge); border-radius: 12px; color: var(--text); background: #202228; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.skip-link:focus { top: 12px; }
+.home-snapshot {
+    margin: 0 0 22px;
+    padding: 17px 20px 16px;
+    border: 1px solid var(--line-subtle);
+    border-radius: 20px;
+    background: linear-gradient(115deg, rgba(29,31,36,.92), rgba(20,21,25,.84));
+}
+.snapshot-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+.snapshot-heading h2 { font-size: 18px; line-height: 1.2; font-weight: 680; letter-spacing: -.03em; }
+.text-action, .snapshot-link { min-height: 44px; border: 0; color: var(--accent); background: transparent; font-size: 12px; font-weight: 620; }
+.text-action { padding: 4px 0 4px 8px; white-space: nowrap; }
+.snapshot-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); }
+.snapshot-metric { min-width: 0; padding: 4px 16px 2px; border-left: 1px solid rgba(255,255,255,.09); }
+.snapshot-metric:first-child { padding-left: 0; border-left: 0; }
+.snapshot-metric:last-child { padding-right: 0; }
+.snapshot-label { display: block; color: var(--text-secondary); font-size: 12px; font-weight: 560; }
+.snapshot-metric > strong { display: block; margin: 3px 0 1px; overflow-wrap: anywhere; color: var(--text); font: 680 clamp(20px,2.5vw,27px)/1.15 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+.snapshot-detail { display: block; min-height: 17px; color: var(--text-secondary); font-size: 11px; line-height: 1.45; }
+.snapshot-progress { height: 4px; margin: 8px 0 2px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.09); }
+.snapshot-progress > span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--success); transition: width 500ms var(--motion-spring); }
+.snapshot-link { margin-top: 2px; padding: 4px 0; text-align: left; }
+
+/* One contextual signal connects training history to the next decision. */
+.training-insight {
+    display: grid;
+    grid-template-columns: 32px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 13px;
+    margin: -7px 0 24px;
+    padding: 14px 17px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 18px;
+    background: linear-gradient(112deg,rgba(255,98,88,.085),rgba(28,30,35,.74) 36%,rgba(20,21,25,.58));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+}
+.insight-signal { width: 9px; height: 9px; justify-self: center; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(255,98,88,.11); }
+.training-insight .section-subtitle { display: block; margin: 0 0 2px; font-size: 10px; }
+.training-insight h2 { margin: 0 0 2px; font-size: 14px; font-weight: 670; letter-spacing: -.02em; }
+.training-insight p { color: var(--text-secondary); font-size: 12px; line-height: 1.45; }
+.insight-action { min-height: 44px; padding: 8px 0 8px 10px; border: 0; color: var(--accent); background: transparent; white-space: nowrap; font-size: 12px; font-weight: 630; }
+.insight-action:active { transform: scale(.97); }
+
+/* Lightweight native SVG chart: no chart library or fabricated interpolation. */
+.weight-trend-panel {
+    margin: 0 0 32px;
+    padding: 18px 20px 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 22px;
+    background: linear-gradient(145deg,rgba(34,36,42,.88),rgba(20,21,25,.78));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 14px 36px rgba(0,0,0,.16);
+}
+.trend-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.trend-heading .section-subtitle { display: block; margin-bottom: 3px; }
+.trend-heading h2 { font-size: 20px; line-height: 1.2; font-weight: 690; letter-spacing: -.035em; }
+.trend-range { display: flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 13px; background: rgba(0,0,0,.18); }
+.trend-range-button { min-width: 44px; min-height: 44px; padding: 6px 9px; border: 0; border-radius: 10px; color: var(--text-secondary); background: transparent; font: 620 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; transition: color 180ms ease, background 180ms ease, transform 140ms ease; }
+.trend-range-button[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.13); box-shadow: inset 0 1px 0 rgba(255,255,255,.13); }
+.trend-range-button:active { transform: scale(.95); }
+.weight-trend-chart { min-height: 190px; margin-top: 12px; }
+.trend-plot { display: grid; grid-template-columns: 40px minmax(0,1fr); align-items: stretch; gap: 7px; }
+.trend-y-axis { display: flex; flex-direction: column; justify-content: space-between; padding: 8px 0 3px; color: #9396a0; font-size: 10px; font-variant-numeric: tabular-nums; text-align: right; }
+.weight-trend-chart svg { display: block; width: 100%; height: 158px; overflow: visible; }
+.trend-gridline { stroke: rgba(255,255,255,.085); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.trend-area { fill: url(#trendArea); }
+.trend-line { fill: none; stroke: #ff8178; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.trend-point { fill: #17181c; stroke: #ffb0aa; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.trend-date-axis { display: flex; justify-content: space-between; margin: 4px 0 0 47px; color: #9396a0; font-size: 11px; }
+.weight-trend-summary { min-height: 18px; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
+.chart-empty { display: grid; place-content: center; min-height: 185px; gap: 5px; text-align: center; }
+.chart-empty strong { color: var(--text); font-size: 14px; font-weight: 650; }
+.chart-empty span { color: var(--text-secondary); font-size: 12px; }
+
+/* Rest is a real timer with a quiet ring, clear next-set cue and direct controls. */
+.rest-timer[hidden] { display: none !important; }
+.rest-timer:not([hidden]) { display: grid; grid-template-columns: minmax(0,1fr) 58px auto; align-items: center; gap: 14px; padding: 13px; }
+.rest-timer-copy { min-width: 0; display: grid; gap: 4px; }
+.rest-timer-copy .timer-label { color: var(--text-tertiary); font-size: 10px; letter-spacing: .06em; }
+.rest-timer-copy > span:last-child { overflow: hidden; color: var(--text-secondary); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.rest-timer-visual { position: relative; width: 58px; height: 58px; display: grid; place-items: center; }
+.rest-timer-visual svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.rest-ring-track, .rest-ring-progress { fill: none; stroke-width: 3; }
+.rest-ring-track { stroke: rgba(255,255,255,.10); }
+.rest-ring-progress { stroke: #ff8178; stroke-linecap: round; stroke-dasharray: 144.5; stroke-dashoffset: 0; transition: stroke-dashoffset 400ms linear; }
+.rest-timer-visual strong { z-index: 1; color: var(--text); font: 650 12px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rest-actions { display: flex; justify-content: flex-end; gap: 5px; }
+.rest-actions button { min-width: 44px; min-height: 44px; padding: 8px; border-radius: 12px; color: var(--text); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.10); font: 600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.rest-actions button:active { transform: scale(.95); }
+
+/* Session art uses real lazy-loaded images so offscreen posters are not fetched eagerly. */
+.workout-card::before { display: none; }
+.workout-card .workout-art { position: absolute; z-index: 0; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; filter: brightness(.63) saturate(.84); pointer-events: none; transition: transform 850ms var(--motion-spring), filter 500ms ease; }
+.workout-card.gyomei .workout-art { object-position: center 40%; filter: brightness(.63) saturate(.84); }
+.workout-card.fusion .workout-art { object-position: center 40%; filter: brightness(.63) saturate(.84); }
+.workout-card.hybrid .workout-art { object-position: center 38%; filter: brightness(.63) saturate(.84); }
+.workout-card::after { z-index: 1; }
+.workout-card .card-top, .workout-card .card-content, .workout-card .start-button { z-index: 2; }
+.workout-card .start-button { position: relative; }
+
+/* A resumable session keeps the primary finish action clear and the destructive action quiet. */
+.workout-footer-actions { display: grid; grid-template-columns: minmax(92px,.65fr) minmax(0,1.35fr); align-items: center; gap: 10px; margin-top: 14px; }
+.workout-footer-actions .complete-workout-button { width: 100%; margin: 0; }
+.discard-workout-button { min-height: 46px; padding: 10px 14px; border: 1px solid var(--line-subtle); border-radius: 14px; color: var(--text-secondary); background: rgba(255,255,255,.035); font-size: 13px; font-weight: 600; }
+.discard-workout-button:active, .text-action:active, .snapshot-link:active { transform: scale(.97); }
+
+@media (hover:hover) and (pointer:fine) {
+    .workout-card:hover .workout-art { transform: scale(1.035); filter: brightness(.69) saturate(.88); }
+    .text-action:hover, .snapshot-link:hover { color: #ffa29b; }
+}
+@media (max-width: 600px) {
+    .home-snapshot { padding: 15px; }
+    .training-insight { grid-template-columns: 28px minmax(0,1fr); gap: 10px; padding: 13px 14px; }
+    .insight-action { grid-column: 2; justify-self: start; min-height: 44px; padding: 3px 0; }
+    .weight-trend-panel { padding: 15px 13px 12px; }
+    .trend-heading { align-items: flex-start; flex-direction: column; gap: 11px; }
+    .trend-range { width: 100%; }
+    .trend-range-button { flex: 1; }
+    .weight-trend-chart { min-height: 165px; }
+    .rest-timer:not([hidden]) { grid-template-columns: 58px minmax(0,1fr); gap: 10px 12px; }
+    .rest-timer-copy { grid-column: 2; grid-row: 1; }
+    .rest-timer-visual { grid-column: 1; grid-row: 1; }
+    .rest-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); }
+    .rest-actions button { min-width: 0; }
+    .snapshot-metric { padding-right: 9px; padding-left: 9px; }
+    .snapshot-metric:first-child { padding-left: 0; }
+    .snapshot-metric:last-child { padding-right: 0; }
+    .snapshot-label { font-size: 11px; }
+    .snapshot-detail { font-size: 10px; }
+    .snapshot-metric > strong { font-size: clamp(17px,5vw,22px); }
+    .hero { min-height: clamp(285px,72vw,350px); margin-bottom: 20px; }
+    .hero-content { padding: 22px; }
+    .hero-title { font-size: clamp(44px,12vw,66px); }
+}
+@media (max-width: 360px) {
+    .snapshot-heading { align-items: flex-start; }
+    .text-action { font-size: 11px; }
+    .snapshot-metric { padding-right: 6px; padding-left: 6px; }
+    .workout-footer-actions { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .snapshot-progress > span, .rest-ring-progress { transition: none; }
+}
