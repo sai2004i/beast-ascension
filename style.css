@@ -3222,3 +3222,75 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     transition-duration: .01ms !important;
   }
 }
+
+
+/* BEAST ASCENSION — MOBILE WORKOUT POLISH + COMPACT CONTROLS */
+.exercise-collapse-btn, .workout-minimize-btn {
+  display:inline-grid; place-items:center; flex:0 0 auto; min-width:42px; min-height:42px;
+  border:1px solid rgba(255,255,255,.18); border-radius:14px; color:#fff;
+  background:rgba(255,255,255,.085); font:inherit; font-size:22px; font-weight:700;
+  line-height:1; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.exercise-collapse-btn:active,.workout-minimize-btn:active { transform:scale(.96); }
+.exercise-item.is-collapsed .set-list { display:none !important; }
+.exercise-item.is-collapsed { padding-bottom:12px; }
+.exercise-item.is-collapsed .exercise-header-row { align-items:center; }
+.workout-modal .workout-tracker {
+  position:sticky; top:-1px; z-index:6; display:grid; gap:10px; padding:2px 0 10px; margin-bottom:8px;
+  background:linear-gradient(180deg,rgba(16,16,20,.98),rgba(16,16,20,.82) 80%,transparent);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.workout-modal .timer-section { margin-bottom:0 !important; }
+.workout-modal .exercise-progress-box { margin-bottom:0 !important; }
+.workout-minimize-btn {
+  position:absolute; z-index:12; top:16px; right:66px; width:42px; padding:0;
+  background:rgba(14,14,18,.72); border-color:rgba(255,255,255,.25);
+  box-shadow:0 8px 24px rgba(0,0,0,.25); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.workout-modal.is-minimized { background:transparent !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; pointer-events:none; }
+.workout-modal.is-minimized .modal-overlay { display:none !important; }
+.workout-modal.is-minimized .modal-content {
+  position:fixed !important; left:10px !important; right:10px !important;
+  bottom:calc(12px + env(safe-area-inset-bottom,0px)) !important; top:auto !important;
+  width:auto !important; max-width:none !important; height:auto !important; max-height:92px !important;
+  min-height:72px; overflow:hidden !important; padding:12px 100px 12px 16px !important;
+  border-radius:20px !important; transform:none !important; pointer-events:auto;
+  background:rgba(22,23,28,.97) !important; border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 12px 36px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+.workout-modal.is-minimized .modal-content > * { display:none !important; }
+.workout-modal.is-minimized .modal-content > .modal-close,
+.workout-modal.is-minimized .modal-content > .workout-minimize-btn { display:grid !important; }
+.workout-modal.is-minimized #modalTitle {
+  display:block !important; position:absolute !important; left:16px !important; right:100px !important; top:9px !important;
+  margin:0 !important; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:14px !important; line-height:1.25;
+}
+.workout-modal.is-minimized #exerciseList {
+  display:block !important; position:absolute !important; left:16px !important; right:100px !important; top:34px !important; margin:0 !important; overflow:visible !important;
+}
+.workout-modal.is-minimized #exerciseList > :not(.workout-tracker) { display:none !important; }
+.workout-modal.is-minimized .workout-tracker { display:block !important; position:static !important; padding:0 !important; margin:0 !important; background:transparent !important; backdrop-filter:none !important; }
+.workout-modal.is-minimized .timer-section { display:flex !important; align-items:center !important; justify-content:flex-start !important; gap:8px !important; padding:0 !important; margin:0 !important; border:0 !important; box-shadow:none !important; background:transparent !important; }
+.workout-modal.is-minimized .timer-label,.workout-modal.is-minimized #timerToggleBtn,.workout-modal.is-minimized .exercise-progress-box { display:none !important; }
+.workout-modal.is-minimized .workout-timer { font-size:17px !important; line-height:1.2; }
+.workout-modal.is-minimized .modal-close { top:12px !important; right:10px !important; width:36px !important; height:36px !important; }
+.workout-modal.is-minimized .workout-minimize-btn { top:12px !important; right:52px !important; width:36px !important; min-width:36px !important; min-height:36px !important; }
+@media (max-width:700px) {
+  .workout-modal.show { align-items:flex-end; padding:6px; }
+  .workout-modal .modal-content { width:100% !important; max-width:100% !important; max-height:calc(100dvh - 12px); padding-left:12px; padding-right:12px; padding-bottom:calc(18px + env(safe-area-inset-bottom,0px)); border-radius:22px; overscroll-behavior:contain; }
+  .workout-modal .exercise-header-row { align-items:flex-start; flex-wrap:wrap; gap:10px; }
+  .workout-modal .exercise-information { min-width:0; flex:1 1 100%; }
+  .workout-modal .exercise-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; width:100%; }
+  .workout-modal .exercise-collapse-btn { margin-left:auto; }
+  .workout-modal .set-row { display:grid; grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 40px; gap:7px; align-items:center; padding:9px; }
+  .workout-modal .telemetry-weight,.workout-modal .telemetry-reps { min-width:0; width:100%; box-sizing:border-box; min-height:46px; font-size:16px !important; }
+  .workout-modal .set-complete { min-width:38px; min-height:42px; display:grid; place-items:center; }
+  .workout-modal .exercise-item { padding:13px; }
+  .workout-modal .modal-close { top:10px; right:10px; }
+  .workout-modal .workout-minimize-btn { top:10px; right:60px; }
+}
+@media (prefers-reduced-motion:reduce) { .exercise-collapse-btn,.workout-minimize-btn { transition:none !important; } }
+
+
+/* BEAST ASCENSION — PRIVACY & TERMS MOBILE UI */
+.legal-section{margin:24px 0 30px;display:grid;gap:12px}.legal-section-heading h2{margin:5px 0 8px;font-size:clamp(23px,5vw,30px)}.legal-section-heading p,.legal-note{color:var(--muted,#a5a5ad);line-height:1.55;font-size:13px}.legal-card{border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(145deg,rgba(31,32,38,.92),rgba(16,17,21,.96));overflow:clip;box-shadow:0 10px 28px rgba(0,0,0,.16)}.legal-card summary{display:flex;align-items:center;gap:12px;min-height:72px;padding:14px 16px;cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.legal-card summary::-webkit-details-marker{display:none}.legal-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:13px;background:rgba(255,65,75,.12);border:1px solid rgba(255,65,75,.24);font-size:20px}.legal-summary-copy{display:grid;gap:4px;min-width:0;flex:1}.legal-summary-copy strong{color:#f7f7fa;font-size:15px}.legal-summary-copy small{color:var(--muted,#a5a5ad);font-size:12px;line-height:1.4}.legal-chevron{color:#ff6971;font-size:23px;transition:transform .18s ease}.legal-card[open] .legal-chevron{transform:rotate(45deg)}.legal-body{padding:0 17px 18px;color:#d6d6dc;font-size:13px;line-height:1.65;overflow-wrap:anywhere}.legal-body h3{color:#fff;font-size:14px;line-height:1.4;margin:20px 0 6px}.legal-body p{margin:7px 0 12px}.legal-updated{color:#ff858b;font-size:11px;letter-spacing:.04em}.legal-note{padding:0 3px;margin:0}.legal-card summary:focus-visible{outline:2px solid #ff4d57;outline-offset:-3px}@media(max-width:600px){.legal-section{margin-top:18px;gap:10px}.legal-card summary{min-height:68px;padding:12px;gap:10px}.legal-body{padding:0 14px 16px;font-size:13px}.legal-body h3{margin-top:17px}}
