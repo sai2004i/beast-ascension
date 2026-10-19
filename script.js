@@ -2950,3 +2950,46 @@ document.addEventListener("change", event => {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startFixObservers, { once: true });
   else startFixObservers();
 })();
+
+
+/* Touch navigation: swipe horizontally between top-level tabs.
+   Ignore controls, dialogs, cards that contain horizontal gestures, and vertical scrolling. */
+(() => {
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    const MIN_SWIPE = 72;
+    const MAX_VERTICAL = 90;
+    const ignored = 'input, textarea, select, button, a, [role="dialog"], .modal, .modal-content, .bottom-nav, .workout-card, .exercise-actions, .trend-range, [data-no-swipe], [contenteditable="true"]';
+
+    function tabs() {
+        return Array.from(document.querySelectorAll('.bottom-nav .nav-item[data-page]'))
+            .map(button => button.dataset.page)
+            .filter(name => name && document.getElementById(`${name}Page`));
+    }
+    function activeTabIndex(list) {
+        const active = document.querySelector('.bottom-nav .nav-item.active[data-page]');
+        return active ? list.indexOf(active.dataset.page) : -1;
+    }
+    document.addEventListener('touchstart', event => {
+        if (event.touches.length !== 1 || event.target.closest(ignored)) { tracking = false; return; }
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+        tracking = true;
+    }, { passive: true });
+    document.addEventListener('touchend', event => {
+        if (!tracking || !event.changedTouches.length) return;
+        tracking = false;
+        const dx = event.changedTouches[0].clientX - startX;
+        const dy = event.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) < MIN_SWIPE || Math.abs(dy) > MAX_VERTICAL || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+        const list = tabs();
+        const current = activeTabIndex(list);
+        if (current < 0) return;
+        const next = current + (dx < 0 ? 1 : -1);
+        if (next >= 0 && next < list.length && typeof window.showPage === 'function') {
+            window.showPage(list[next]);
+        }
+    }, { passive: true });
+    document.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
+})();
