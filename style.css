@@ -3294,3 +3294,344 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* BEAST ASCENSION — PRIVACY & TERMS MOBILE UI */
 .legal-section{margin:24px 0 30px;display:grid;gap:12px}.legal-section-heading h2{margin:5px 0 8px;font-size:clamp(23px,5vw,30px)}.legal-section-heading p,.legal-note{color:var(--muted,#a5a5ad);line-height:1.55;font-size:13px}.legal-card{border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(145deg,rgba(31,32,38,.92),rgba(16,17,21,.96));overflow:clip;box-shadow:0 10px 28px rgba(0,0,0,.16)}.legal-card summary{display:flex;align-items:center;gap:12px;min-height:72px;padding:14px 16px;cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.legal-card summary::-webkit-details-marker{display:none}.legal-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:13px;background:rgba(255,65,75,.12);border:1px solid rgba(255,65,75,.24);font-size:20px}.legal-summary-copy{display:grid;gap:4px;min-width:0;flex:1}.legal-summary-copy strong{color:#f7f7fa;font-size:15px}.legal-summary-copy small{color:var(--muted,#a5a5ad);font-size:12px;line-height:1.4}.legal-chevron{color:#ff6971;font-size:23px;transition:transform .18s ease}.legal-card[open] .legal-chevron{transform:rotate(45deg)}.legal-body{padding:0 17px 18px;color:#d6d6dc;font-size:13px;line-height:1.65;overflow-wrap:anywhere}.legal-body h3{color:#fff;font-size:14px;line-height:1.4;margin:20px 0 6px}.legal-body p{margin:7px 0 12px}.legal-updated{color:#ff858b;font-size:11px;letter-spacing:.04em}.legal-note{padding:0 3px;margin:0}.legal-card summary:focus-visible{outline:2px solid #ff4d57;outline-offset:-3px}@media(max-width:600px){.legal-section{margin-top:18px;gap:10px}.legal-card summary{min-height:68px;padding:12px;gap:10px}.legal-body{padding:0 14px 16px;font-size:13px}.legal-body h3{margin-top:17px}}
+
+/* BEAST ASCENSION — FIX: mobile workout cards + draggable timer panel */
+/* Prevent scroll-reveal from leaving workout cards invisible on a page that started hidden. */
+#workoutPage #workoutSection .workout-grid,
+#workoutPage #workoutSection .workout-card,
+#workoutPage #workoutSection .workout-card.ios-reveal,
+#workoutPage #workoutSection .workout-card.ios-reveal:not(.is-visible) {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+#workoutPage #workoutSection .workout-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+#workoutPage #workoutSection .workout-card[hidden] { display: none !important; }
+@media (max-width: 700px) {
+  #workoutPage #workoutSection .workout-grid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
+/* Timer is in normal document flow by default, so it never covers set-entry rows. */
+.workout-modal .workout-tracker {
+  position: relative !important;
+  top: auto !important;
+  z-index: 2 !important;
+  margin-bottom: 14px !important;
+  background: linear-gradient(180deg, rgba(16,16,20,.98), rgba(16,16,20,.9)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.workout-modal .workout-tracker.timer-panel-dragged {
+  position: fixed !important;
+  box-sizing: border-box !important;
+  max-height: min(45vh, 320px);
+  overflow: auto;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(12,13,17,.97) !important;
+  box-shadow: 0 14px 42px rgba(0,0,0,.6);
+  touch-action: auto;
+}
+.workout-modal .timer-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.workout-modal .timer-drag-handle::after {
+  content: '↕ MOVE';
+  display: inline-block;
+  padding: 3px 7px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 7px;
+  color: rgba(255,255,255,.7);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.workout-modal .timer-drag-handle:active { cursor: grabbing; }
+.workout-modal.is-minimized .workout-tracker.timer-panel-dragged {
+  max-height: 90px;
+  overflow: hidden;
+}
+
+/* =========================================================
+   BEAST ASCENSION — BRIGHT GLASSMORPHIC BOTTOM NAV
+   Append this block to the VERY END of your existing style.css.
+   Keeps the existing navigation markup and click handlers.
+========================================================= */
+
+.bottom-nav {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    transform: translateX(-50%);
+    width: min(860px, calc(100vw - 28px)) !important;
+    max-width: calc(100vw - 28px) !important;
+    height: auto !important;
+    min-height: 78px;
+    padding: 8px 10px !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: stretch;
+    gap: 5px;
+    background: linear-gradient(125deg, rgba(255,255,255,.27) 0%, rgba(255,255,255,.13) 22%, rgba(24,27,34,.54) 55%, rgba(255,255,255,.12) 100%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(185%) brightness(1.12) !important;
+    backdrop-filter: blur(28px) saturate(185%) brightness(1.12) !important;
+    border: 1px solid rgba(255,255,255,.48) !important;
+    border-top-color: rgba(255,255,255,.68) !important;
+    border-radius: 30px !important;
+    box-shadow: 0 16px 48px rgba(0,0,0,.48), 0 0 0 1px rgba(255,255,255,.055) inset, 0 1px 0 rgba(255,255,255,.42) inset, 0 -8px 28px rgba(255,255,255,.035) inset, 0 0 28px rgba(255,255,255,.08) !important;
+    overflow: visible;
+    isolation: isolate;
+    z-index: 10000 !important;
+}
+
+.bottom-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(115deg, rgba(255,255,255,.16), transparent 38%, rgba(255,255,255,.055) 72%, rgba(255,255,255,.13));
+    opacity: .95;
+    z-index: -1;
+}
+
+.bottom-nav .nav-item {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    min-height: 60px;
+    padding: 8px 3px !important;
+    gap: 4px !important;
+    border: 1px solid transparent !important;
+    border-radius: 22px !important;
+    background: transparent !important;
+    color: rgba(242,245,250,.78) !important;
+    font-size: clamp(10px, 1.6vw, 13px) !important;
+    font-weight: 650;
+    letter-spacing: 0 !important;
+    text-shadow: 0 1px 8px rgba(0,0,0,.35);
+    transition: background .22s ease, border-color .22s ease, color .22s ease, box-shadow .22s ease, transform .22s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.bottom-nav .nav-item::before { display: none !important; }
+
+.bottom-nav .nav-item .nav-icon,
+.bottom-nav .nav-item svg,
+.bottom-nav .nav-item i {
+    color: currentColor;
+    fill: currentColor;
+    font-size: 22px;
+    filter: drop-shadow(0 1px 5px rgba(0,0,0,.25));
+}
+
+.bottom-nav .nav-item.active {
+    color: #fff !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.28), rgba(255,255,255,.10) 48%, rgba(255,92,82,.22)) !important;
+    border-color: rgba(255,255,255,.38) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.07) inset, 0 5px 18px rgba(0,0,0,.18), 0 0 24px rgba(255,87,76,.16) !important;
+}
+
+.bottom-nav .nav-item.active .nav-icon,
+.bottom-nav .nav-item.active svg,
+.bottom-nav .nav-item.active i {
+    color: #ff746b;
+    filter: drop-shadow(0 0 7px rgba(255,91,80,.48));
+}
+
+.bottom-nav .nav-item:active { transform: scale(.96); }
+
+@media (max-width: 520px) {
+    .bottom-nav {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        min-height: 76px;
+        padding: 7px 7px !important;
+        padding-bottom: max(7px, env(safe-area-inset-bottom)) !important;
+        bottom: max(9px, env(safe-area-inset-bottom)) !important;
+        border-radius: 27px !important;
+        gap: 3px;
+        -webkit-backdrop-filter: blur(26px) saturate(175%) brightness(1.1) !important;
+        backdrop-filter: blur(26px) saturate(175%) brightness(1.1) !important;
+    }
+    .bottom-nav .nav-item {
+        min-height: 58px;
+        padding: 6px 1px !important;
+        border-radius: 20px !important;
+        font-size: 10px !important;
+        gap: 3px !important;
+    }
+    .bottom-nav .nav-item .nav-icon,
+    .bottom-nav .nav-item svg,
+    .bottom-nav .nav-item i { font-size: 21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bottom-nav .nav-item { transition: none !important; }
+}
+
+/* =========================================================
+   BEAST ASCENSION — APP-WIDE INTERACTION & PAGE TRANSITIONS
+   Append this entire file to the END of your existing style.css.
+   No HTML/JS changes required; existing navigation handlers remain intact.
+========================================================= */
+
+:root {
+  --ba-ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ba-ease-spring: cubic-bezier(.2, .85, .25, 1.15);
+  --ba-transition-fast: 160ms;
+  --ba-transition-normal: 260ms;
+}
+
+/* Smooth transitions between Home / Workout / Nutrition / Progress / Profile */
+.page {
+  transform-origin: 50% 18%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.page.active-page {
+  animation: baPageEnter 420ms var(--ba-ease-out) both !important;
+}
+@keyframes baPageEnter {
+  0% { opacity: 0; transform: translate3d(0, 13px, 0) scale(.992); filter: blur(2px); }
+  65% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: none; }
+}
+
+/* Bottom bar: active-tab glide, brighter selection, tactile press */
+.bottom-nav .nav-item {
+  transition:
+    color 220ms ease,
+    background 260ms var(--ba-ease-out),
+    border-color 220ms ease,
+    box-shadow 260ms ease,
+    transform 180ms var(--ba-ease-spring),
+    filter 220ms ease !important;
+  will-change: transform, background, box-shadow;
+}
+.bottom-nav .nav-item.active {
+  animation: baNavSelect 320ms var(--ba-ease-spring) both;
+}
+@keyframes baNavSelect {
+  0% { transform: scale(.92); }
+  68% { transform: scale(1.035); }
+  100% { transform: scale(1); }
+}
+.bottom-nav .nav-item:active {
+  transform: scale(.94) !important;
+  filter: brightness(1.16);
+}
+
+/* Buttons, session choices, mode switches and action controls */
+button, .mode-btn, .nav-item, .session-card, .workout-card,
+.exercise-card, .stat-card, .rank-node, .achievement-card,
+.meal-card, .nutrition-card, .progress-card, .level-progress-card,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 180ms ease,
+    background-color 220ms ease,
+    background 220ms ease,
+    border-color 220ms ease,
+    box-shadow 240ms ease,
+    transform 220ms var(--ba-ease-out),
+    opacity 220ms ease,
+    filter 220ms ease !important;
+}
+
+button:hover, .mode-btn:hover, .session-card:hover, .workout-card:hover,
+.exercise-card:hover, .stat-card:hover, .rank-node:hover,
+.achievement-card:hover, .meal-card:hover, .nutrition-card:hover,
+.progress-card:hover, .level-progress-card:hover, [role="button"]:hover {
+  border-color: rgba(255, 255, 255, .23);
+  filter: brightness(1.08);
+}
+
+button:active, .mode-btn:active, .session-card:active, .workout-card:active,
+.exercise-card:active, .stat-card:active, .rank-node:active,
+.achievement-card:active, .meal-card:active, .nutrition-card:active,
+.progress-card:active, .level-progress-card:active, [role="button"]:active {
+  transform: scale(.985);
+  filter: brightness(1.12);
+}
+
+/* Cards gently rise in on screen; avoid permanent hidden states */
+.workout-card, .exercise-card, .session-card, .stat-card,
+.achievement-card, .meal-card, .nutrition-card, .progress-card,
+.level-progress-card, .rank-node {
+  transform-origin: center;
+}
+
+/* Form fields: smooth focus ring and readable active state */
+input, textarea, select {
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 180ms ease !important;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: rgba(255, 111, 101, .72) !important;
+  box-shadow: 0 0 0 3px rgba(255, 92, 82, .13), 0 0 18px rgba(255, 92, 82, .08) !important;
+}
+
+/* Checkboxes / toggles */
+input[type="checkbox"], input[type="radio"] {
+  accent-color: #ff6d64;
+  cursor: pointer;
+  transition: transform 160ms var(--ba-ease-spring) !important;
+}
+input[type="checkbox"]:active, input[type="radio"]:active {
+  transform: scale(.9);
+}
+
+/* Set completion feedback */
+.set-row, .exercise-set, .set-entry, .set-item {
+  transition: background 220ms ease, border-color 220ms ease, opacity 220ms ease !important;
+}
+
+/* Modal and popover entrance */
+.workout-modal, .intel-modal, .modal-content, .intel-content,
+[role="dialog"] {
+  transform-origin: center;
+}
+.workout-modal .modal-content, .intel-modal .intel-content,
+[role="dialog"] {
+  animation: baModalEnter 300ms var(--ba-ease-out) both;
+}
+@keyframes baModalEnter {
+  from { opacity: 0; transform: translateY(10px) scale(.975); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Smooth progress-bar fill */
+progress, .progress-fill, .progress-bar-fill, .level-progress-fill {
+  transition: width 420ms var(--ba-ease-out), background-color 240ms ease !important;
+}
+
+/* Accessible motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

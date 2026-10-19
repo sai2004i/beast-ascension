@@ -1411,12 +1411,15 @@ window.startWorkout = function (workoutKey, resumeDraft = null) {
             });
         });
         list.appendChild(item);
+        installExerciseCollapseControl(item);
         const splitDisplay = document.getElementById(`splitDisplay_${exerciseIndex}`);
         if (splitDisplay) splitDisplay.textContent = formatSplitTime(exerciseSplitTimes[exerciseIndex] || 0);
         const exerciseChecks = Array.from(item.querySelectorAll(".exercise-check"));
         item.classList.toggle("completed", exerciseChecks.length > 0 && exerciseChecks.every(input => input.checked));
     });
 
+    ensureWorkoutMinimizeButton();
+    modal.classList.remove("is-minimized");
     modal.classList.add("show");
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("modal-open");
@@ -1482,7 +1485,7 @@ window.closeWorkout = function (completed = false) {
     }
     const modal = document.getElementById("workoutModal");
     if (modal) {
-        modal.classList.remove("show");
+        modal.classList.remove("show", "is-minimized");
         modal.setAttribute("aria-hidden", "true");
     }
     document.body.classList.remove("modal-open");
@@ -2732,4 +2735,218 @@ if ("serviceWorker" in navigator) {
             }
         }
     }, true);
+})();
+
+
+/* BEAST ASCENSION — MOBILE WORKOUT CONTROLS */
+function collapsedExerciseStorageKey(workoutKey, mode) {
+    return `beastCollapsedExercises:${workoutKey || "unknown"}:${mode || "gym"}`;
+}
+function getCollapsedExerciseState(workoutKey, mode) {
+    try {
+        const value = JSON.parse(localStorage.getItem(collapsedExerciseStorageKey(workoutKey, mode)) || "{}");
+        return value && typeof value === "object" ? value : {};
+    } catch (_) { return {}; }
+}
+function saveCollapsedExerciseState(workoutKey = activeWorkout, mode = activeWorkoutMode) {
+    const modal = document.getElementById("workoutModal");
+    if (!modal || !workoutKey) return;
+    const state = {};
+    modal.querySelectorAll(".exercise-item").forEach(card => {
+        if (card.dataset.exerciseName) state[card.dataset.exerciseName] = card.classList.contains("is-collapsed");
+    });
+    try { localStorage.setItem(collapsedExerciseStorageKey(workoutKey, mode), JSON.stringify(state)); }
+    catch (error) { console.warn("Could not save exercise collapse state", error); }
+}
+function installExerciseCollapseControl(card) {
+    if (!card || card.querySelector(".exercise-collapse-btn")) return;
+    const actions = card.querySelector(".exercise-actions");
+    if (!actions) return;
+    const name = card.dataset.exerciseName || "Exercise";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "exercise-collapse-btn";
+    button.addEventListener("click", () => window.toggleExerciseCard(button));
+    actions.insertBefore(button, actions.firstChild);
+    const saved = getCollapsedExerciseState(activeWorkout, activeWorkoutMode);
+    if (Object.prototype.hasOwnProperty.call(saved, name) && saved[name]) card.classList.add("is-collapsed");
+    syncExerciseCollapseButton(card);
+}
+function syncExerciseCollapseButton(card) {
+    const button = card?.querySelector(".exercise-collapse-btn");
+    if (!button) return;
+    const collapsed = card.classList.contains("is-collapsed");
+    const name = card.querySelector(".exercise-name")?.textContent || "Exercise";
+    button.textContent = collapsed ? "+" : "−";
+    button.setAttribute("aria-expanded", String(!collapsed));
+    button.setAttribute("aria-label", `${collapsed ? "Expand" : "Collapse"} ${name}`);
+    button.title = collapsed ? "Expand exercise sets" : "Collapse exercise sets";
+}
+window.toggleExerciseCard = function (button) {
+    const card = button?.closest(".exercise-item");
+    if (!card) return;
+    card.classList.toggle("is-collapsed");
+    syncExerciseCollapseButton(card);
+    saveCollapsedExerciseState();
+};
+function ensureWorkoutMinimizeButton() {
+    const modal = document.getElementById("workoutModal");
+    const content = modal?.querySelector(".modal-content");
+    if (!modal || !content || content.querySelector(".workout-minimize-btn")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "workout-minimize-btn";
+    button.textContent = "−";
+    button.title = "Minimize workout";
+    button.setAttribute("aria-label", "Minimize workout panel");
+    button.addEventListener("click", window.toggleWorkoutPanel);
+    content.appendChild(button);
+}
+window.toggleWorkoutPanel = function () {
+    const modal = document.getElementById("workoutModal");
+    const button = modal?.querySelector(".workout-minimize-btn");
+    if (!modal || !button) return;
+    const minimized = modal.classList.toggle("is-minimized");
+    button.textContent = minimized ? "↗" : "−";
+    button.title = minimized ? "Restore workout" : "Minimize workout";
+    button.setAttribute("aria-label", minimized ? "Restore workout panel" : "Minimize workout panel");
+};
+/* Auto-collapse when all sets are complete; expand again if a set is unchecked. */
+document.addEventListener("change", event => {
+    const check = event.target;
+    if (!check?.matches?.(".exercise-check")) return;
+    const card = check.closest(".exercise-item");
+    if (!card) return;
+    const checks = [...card.querySelectorAll(".exercise-check")];
+    const complete = checks.length > 0 && checks.every(input => input.checked);
+    card.classList.toggle("is-collapsed", complete);
+    syncExerciseCollapseButton(card);
+    saveCollapsedExerciseState();
+});
+
+
+/* BEAST ASCENSION FIX: make workout cards visible and allow timer panel dragging. */
+(function () {
+  function revealWorkoutCards() {
+    const section = document.getElementById('workoutSection');
+    if (!section) return;
+    section.querySelectorAll('.workout-card').forEach(card => {
+      card.classList.add('is-visible');
+      card.style.setProperty('opacity', '1', 'important');
+      card.style.setProperty('visibility', 'visible', 'important');
+      card.style.setProperty('transform', 'none', 'important');
+    });
+    const grid = section.querySelector('.workout-grid');
+    if (grid) {
+      grid.style.setProperty('visibility', 'visible', 'important');
+      grid.style.setProperty('opacity', '1', 'important');
+    }
+  }
+
+  // The workout page starts hidden, so scroll-reveal observers can leave its cards transparent.
+  document.addEventListener('DOMContentLoaded', revealWorkoutCards);
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-page="workout"]') || event.target.closest('.nav-item[onclick]')) {
+      window.setTimeout(revealWorkoutCards, 80);
+      window.setTimeout(revealWorkoutCards, 350);
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) revealWorkoutCards();
+  });
+  window.addEventListener('pageshow', revealWorkoutCards);
+
+  function enableTimerDragging() {
+    const tracker = document.querySelector('#exerciseList .workout-tracker');
+    const handle = tracker?.querySelector('.timer-label');
+    if (!tracker || !handle || handle.dataset.dragReady === '1') return;
+    handle.dataset.dragReady = '1';
+    handle.title = 'Touch and drag to move this timer panel; double-tap to reset its position';
+    handle.setAttribute('aria-label', 'Timer panel drag handle. Drag to move; double-tap to reset position.');
+    handle.classList.add('timer-drag-handle');
+
+    let startX = 0, startY = 0, originX = 0, originY = 0;
+    let dragging = false, moved = false, pointerId = null;
+    const resetPosition = () => {
+      tracker.classList.remove('timer-panel-dragged');
+      ['position','left','top','right','bottom','width','maxWidth','margin','zIndex','transform'].forEach(prop => tracker.style.removeProperty(prop.replace(/[A-Z]/g, m => '-' + m.toLowerCase())));
+      tracker.style.removeProperty('position');
+      tracker.style.removeProperty('left');
+      tracker.style.removeProperty('top');
+      tracker.style.removeProperty('right');
+      tracker.style.removeProperty('bottom');
+      tracker.style.removeProperty('width');
+      tracker.style.removeProperty('max-width');
+      tracker.style.removeProperty('margin');
+      tracker.style.removeProperty('z-index');
+      tracker.style.removeProperty('transform');
+    };
+    handle.addEventListener('dblclick', resetPosition);
+    let lastTap = 0;
+    handle.addEventListener('pointerdown', event => {
+      if (event.button !== undefined && event.button !== 0) return;
+      pointerId = event.pointerId;
+      startX = event.clientX; startY = event.clientY;
+      const rect = tracker.getBoundingClientRect();
+      originX = rect.left; originY = rect.top;
+      dragging = true; moved = false;
+      try { handle.setPointerCapture(pointerId); } catch (_) {}
+      event.preventDefault();
+    });
+    handle.addEventListener('pointermove', event => {
+      if (!dragging || event.pointerId !== pointerId) return;
+      const dx = event.clientX - startX, dy = event.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < 7) return;
+      moved = true;
+      const viewportW = window.innerWidth, viewportH = window.innerHeight;
+      const rect = tracker.getBoundingClientRect();
+      if (!tracker.classList.contains('timer-panel-dragged')) {
+        tracker.classList.add('timer-panel-dragged');
+        tracker.style.position = 'fixed';
+        tracker.style.left = `${originX}px`;
+        tracker.style.top = `${originY}px`;
+        tracker.style.right = 'auto';
+        tracker.style.bottom = 'auto';
+        tracker.style.width = `${rect.width}px`;
+        tracker.style.maxWidth = `calc(100vw - 16px)`;
+        tracker.style.margin = '0';
+        tracker.style.zIndex = '10020';
+        tracker.style.transform = 'none';
+      }
+      const width = tracker.getBoundingClientRect().width;
+      const height = tracker.getBoundingClientRect().height;
+      const left = Math.max(8, Math.min(viewportW - width - 8, originX + dx));
+      const top = Math.max(8, Math.min(viewportH - height - 8, originY + dy));
+      tracker.style.left = `${left}px`;
+      tracker.style.top = `${top}px`;
+    });
+    const finish = event => {
+      if (!dragging || (event && event.pointerId !== pointerId)) return;
+      dragging = false;
+      pointerId = null;
+      if (!moved) {
+        const now = Date.now();
+        if (now - lastTap < 320 && tracker.classList.contains('timer-panel-dragged')) resetPosition();
+        lastTap = now;
+      }
+    };
+    handle.addEventListener('pointerup', finish);
+    handle.addEventListener('pointercancel', finish);
+    window.addEventListener('resize', () => {
+      if (!tracker.classList.contains('timer-panel-dragged')) return;
+      const rect = tracker.getBoundingClientRect();
+      tracker.style.left = `${Math.max(8, Math.min(window.innerWidth - rect.width - 8, rect.left))}px`;
+      tracker.style.top = `${Math.max(8, Math.min(window.innerHeight - rect.height - 8, rect.top))}px`;
+    });
+  }
+
+  const observer = new MutationObserver(() => enableTimerDragging());
+  function startFixObservers() {
+    revealWorkoutCards();
+    enableTimerDragging();
+    const list = document.getElementById('exerciseList');
+    if (list) observer.observe(list, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startFixObservers, { once: true });
+  else startFixObservers();
 })();
